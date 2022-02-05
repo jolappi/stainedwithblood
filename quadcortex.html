@@ -2,10 +2,11 @@
 <html>
 
 <head>
-    <title>Touch Midi for QUAD CORTEX v2.0</title>
+    <title>Touch Midi for QUAD CORTEX v2.1</title>
     <script src="https://cdn.jsdelivr.net/gh/benc-uk/touchmidi@v2.2.0/dist/bundle.js"></script>
 </head>
 <script>
+    //var groupturnoff =
     function groupturnoff(groups,tama){
         var collection = document.getElementsByClassName(groups);
         for (var i = 0; i < collection.length; i++) {
@@ -29,6 +30,19 @@
                 collection[i]._pressed=false;
             }
         }
+    }
+    var lengths = {};
+    function hide(id){
+        var elem = document.getElementById(id);
+        var elem2 = document.getElementById(id+"btn");
+        elem2.style.display = "block";
+        elem.style.display="none";
+    }
+    function show(id){
+        var elem = document.getElementById(id);
+        var elem2 = document.getElementById(id+"btn");
+        elem2.style.display = "none";
+        elem.style.display="flex";
     }
 </script>
 <body>
@@ -131,10 +145,14 @@
                 <midi-button prog="1,1"  toggle id="ub32" class="grpuserbanksbtns" onclick="groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="32" value="120" colour="#88ffdd"></midi-button>
             </group-row>
         </group-column>
-        <group-column margin="1">
+        <div id="defbanksbtn" style="display:none;">
+            <button onclick="show('defbanks')">&#x3E;</button>
+        </div>
+        <group-column margin="1" id="defbanks">
+            <midi-button onclick="hide('defbanks')" label="Hide" grow="0" label-scale="0.2"></midi-button>
             <!-- prog 1,1 = user upper progs  prog 1,0 lower progs value = program number-->
             <h1>Default bank's</h1>
-            <group-row>
+            <group-row id="defbanksoriglen">
                 <midi-button prog="0,0"  toggle id="db1" class="gprdefaultbanksbtns" onclick="groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="1" value="0" colour="#88ffdd"></midi-button>
                 <midi-button prog="0,0"  toggle id="db2" class="gprdefaultbanksbtns" onclick="groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="2" value="8" colour="#88ffdd"></midi-button>
                 <midi-button prog="0,0"  toggle id="db3" class="gprdefaultbanksbtns" onclick="groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="3" value="16" colour="#88ffdd"></midi-button>
@@ -183,6 +201,45 @@
                 <midi-button prog="0,1"  toggle id="db32" class="gprdefaultbanksbtns" onclick="groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="32" value="120" colour="#88ffdd"></midi-button>
             </group-row>
         </group-column>
+        <div id="looperbtn" style="display:none;">
+            <button onclick="show('looper')">&#x3E;</button>
+        </div>
+        <group-column  margin="1" id="looper">
+            <midi-button onclick="hide('looper')" label="Hide" grow="0" label-scale="0.2"></midi-button>
+            <h1>Looper functions</h1>
+            <group-row>
+                <midi-button cc="61" label="&#x1F3A4;<br>in1" value="1"  value-off="1" label-scale="1.5" toggle colour="grey" id="in1" class="inputs" onclick="groupturnoff('inputs',this)" ></midi-button>
+                <midi-button cc="61" label="&#x23DB;<br>grid" value="0"  value-off="0" label-scale="1.5" toggle colour="grey" id="gridinput" class="inputs" onclick="groupturnoff('inputs',this)"></midi-button>
+                <!--midi-button cc="49" label="&#x2398;<br>dup." value="64"  value-off="127" label-scale="1.5" toggle colour="grey"></midi-button>
+                <midi-button cc="48" label="&#x1F4C2;" value="64"  value-off="64" label-scale="2.0" toggle colour="grey"></midi-button-->
+            </group-row>
+            <group-row>
+                <midi-button cc="53" label="&#x23FA;" value="64" value-off="63" label-scale="0.6" toggle colour="red"></midi-button>
+            </group-row>
+            <group-row>
+                <midi-button cc="51" label="&#xBD;" value="64" grow="1" value-off="64" label-scale="2.0" toggle colour="white"></midi-button>
+                <midi-button cc="55" label="&#x25C0;" value="64"  value-off="64" label-scale="1.0" toggle colour="white"></midi-button>
+            </group-row>
+            <group-row>
+                <midi-button cc="54" label="&#x23EF;" value="64" grow="1" value-off="64" label-scale="0.6" toggle colour="green"></midi-button>
+                <!--midi-button cc="53" label="&#x23F9;" value="63" value-off="63" label-scale="0.6" toggle colour="green"></midi-button-->
+            </group-row>
+            <group-row>
+                <h1></h1>
+            </group-row>
+            <group-row>
+                <h1></h1>
+            </group-row>
+            <group-row>
+                <h1></h1>
+            </group-row>
+            <group-row>
+                <h1></h1>
+            </group-row>
+            <group-row>
+                <h1></h1>
+            </group-row>
+    </group-column>
     </group-row>
 </body>
 
