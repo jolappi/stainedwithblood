@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Touch Midi [Polyend Tracker]</title>
+    <script src="https://cdn.jsdelivr.net/gh/benc-uk/touchmidi@v2.2.0/dist/bundle.js"></script>
+</head>
+
+<body>
+    <group-row>
+        <group-column>
+            <group-row>
+                <midi-button cc="43" value="0" value-off="110" label="scene A" colour="#ffffff"></midi-button>
+                <midi-button cc="43" value="1" value-off="110" label="scene B" colour="#eeeeee"></midi-button>
+            </group-row>
+            <midi-button cc="35" value="0" value-off="110" label="A" colour="#00ff00"></midi-button>
+            <midi-button cc="39" value="0" value-off="110" label="E" colour="cyan"></midi-button>
+        </group-column>
+        <group-column>
+            <group-row>
+                <midi-button cc="43" value="2" value-off="110" label="scene C" colour="#dddddd"></midi-button>
+                <midi-button cc="43" value="3" value-off="110" label="scene D" colour="#cccccc"></midi-button>
+            </group-row>
+            <midi-button cc="36" value="0" value-off="110" label="B" colour="#0000ff"></midi-button>
+            <midi-button cc="40" value="0" value-off="110" label="F" colour="purple"></midi-button>
+        </group-column>
+        <group-column>
+            <group-row>
+                <midi-button cc="43" value="4" value-off="110" label="scene E" colour="#bbbbbb"></midi-button>
+                <midi-button cc="43" value="5" value-off="110" label="scene F" colour="#aaaaaa"></midi-button>
+            </group-row>
+            <midi-button cc="37" value="0" value-off="110" label="C" colour="orange"></midi-button>
+            <midi-button cc="41" value="0" value-off="110" label="G" colour="yellow"></midi-button>
+        </group-column>
+        <group-column>
+            <group-row>
+                <midi-button cc="43" value="6" value-off="110" label="scene G" colour="#999999"></midi-button>
+                <midi-button cc="43" value="7" value-off="110" label="scene H" colour="#888888"></midi-button>
+            </group-row>
+            <midi-button cc="38" value="0" value-off="110" label="D" colour="pink"></midi-button>
+            <midi-button cc="42" value="0" value-off="110" label="H" colour="red"></midi-button>
+        </group-column>
+        <group-column>
+            <midi-button cc="46" label="Gig view" value="1" label-scale="0.5" toggle colour="white"></midi-button>
+            <midi-button cc="45" value="0" value-off="110"  label-scale="0.5" label="tuner" toggle colour="#88aa44"></midi-button>
+            <midi-button cc="44" label="tempo" value="1"  label-scale="0.5" colour="#00ff00"></midi-button>
+            <group-row toggle>
+                <midi-button cc="47" value="0" label="Preset" colour="#ffffff"></midi-button>
+                <midi-button cc="47" value="1" label="Scene" colour="#cccccc"></midi-button>
+                <midi-button cc="47" value="2" label="Stomp" colour="#aaaaaa"></midi-button>
+            </group-row>
+            <group-row>
+                <midi-slider cc="1" label="%v -exp1"></midi-slider>
+                <midi-slider cc="2" label="%v -exp2" colour="#eeeeee"></midi-slider>
+            </group-row>
+        </group-column>
+        <group-column margin="1">
+            <!-- prog 1,1 = user upper progs  prog 1,0 lower progs value = program number-->
+            <h1>User bank's</h1>
+            <group-row>
+                <midi-button prog="1,0" label="1" value="0" colour="green"></midi-button>
+                <midi-button prog="1,0" label="2" value="8" colour="green"></midi-button>
+                <midi-button prog="1,0" label="3" value="16" colour="green"></midi-button>
+                <midi-button prog="1,0" label="4" value="24" colour="green"></midi-button>
+            </group-row>
+            <group-row>
+                <midi-button prog="1,0" label="5" value="32" colour="green"></midi-button>
+                <midi-button prog="1,0" label="6" value="40" colour="green"></midi-button>
+                <midi-button prog="1,0" label="7" value="48" colour="green"></midi-button>
+                <midi-button prog="1,0" label="8" value="56" colour="green"></midi-button>
+            </group-row>
+            <group-row>
+                <midi-button prog="1,0" label="9" value="64" colour="green"></midi-button>
+                <midi-button prog="1,0" label="10" value="72" colour="green"></midi-button>
+                <midi-button prog="1,0" label="11" value="80" colour="green"></midi-button>
+                <midi-button prog="1,0" label="12" value="88" colour="green"></midi-button>
+            </group-row>
+            <group-row>
+                <midi-button prog="1,0" label="13" value="96" colour="green"></midi-button>
+                <midi-button prog="1,0" label="14" value="104" colour="green"></midi-button>
+                <midi-button prog="1,0" label="15" value="112" colour="green"></midi-button>
+                <midi-button prog="1,0" label="16" value="120" colour="green"></midi-button>
+            </group-row>
+            <group-row>
+                <midi-button prog="1,1" label="17" value="0" colour="green"></midi-button>
+                <midi-button prog="1,1" label="18" value="8" colour="green"></midi-button>
+                <midi-button prog="1,1" label="19" value="16" colour="green"></midi-button>
+                <midi-button prog="1,1" label="20" value="24" colour="green"></midi-button>
+            </group-row>
+            <group-row>
+                <midi-button prog="1,1" label="21" value="32" colour="green"></midi-button>
+                <midi-button prog="1,1" label="22" value="40" colour="green"></midi-button>
+                <midi-button prog="1,1" label="23" value="48" colour="green"></midi-button>
+                <midi-button prog="1,1" label="24" value="56" colour="green"></midi-button>
+            </group-row>
+            <group-row>
+                <midi-button prog="1,1" label="25" value="64" colour="green"></midi-button>
+                <midi-button prog="1,1" label="26" value="72" colour="green"></midi-button>
+                <midi-button prog="1,1" label="27" value="80" colour="green"></midi-button>
+                <midi-button prog="1,1" label="28" value="88" colour="green"></midi-button>
+            </group-row>
+            <group-row>
+                <midi-button prog="1,1" label="29" value="96" colour="green"></midi-button>
+                <midi-button prog="1,1" label="30" value="104" colour="green"></midi-button>
+                <midi-button prog="1,1" label="31" value="112" colour="green"></midi-button>
+                <midi-button prog="1,1" label="32" value="120" colour="green"></midi-button>
+            </group-row>
+        </group-column>
+        <group-column margin="1">
+            <!-- prog 1,1 = user upper progs  prog 1,0 lower progs value = program number-->
+            <h1>Default bank's</h1>
+            <group-row>
+                <midi-button prog="0,0" label="1" value="0" colour="green"></midi-button>
+                <midi-button prog="0,0" label="2" value="8" colour="green"></midi-button>
+                <midi-button prog="0,0" label="3" value="16" colour="green"></midi-button>
+                <midi-button prog="0,0" label="4" value="24" colour="green"></midi-button>
+            </group-row>
+            <group-row>
+                <midi-button prog="0,0" label="5" value="32" colour="green"></midi-button>
+                <midi-button prog="0,0" label="6" value="40" colour="green"></midi-button>
+                <midi-button prog="0,0" label="7" value="48" colour="green"></midi-button>
+                <midi-button prog="0,0" label="8" value="56" colour="green"></midi-button>
+            </group-row>
+            <group-row>
+                <midi-button prog="0,0" label="9" value="64" colour="green"></midi-button>
+                <midi-button prog="0,0" label="10" value="72" colour="green"></midi-button>
+                <midi-button prog="0,0" label="11" value="80" colour="green"></midi-button>
+                <midi-button prog="0,0" label="12" value="88" colour="green"></midi-button>
+            </group-row>
+            <group-row>
+                <midi-button prog="0,0" label="13" value="96" colour="green"></midi-button>
+                <midi-button prog="0,0" label="14" value="104" colour="green"></midi-button>
+                <midi-button prog="0,0" label="15" value="112" colour="green"></midi-button>
+                <midi-button prog="0,0" label="16" value="120" colour="green"></midi-button>
+            </group-row>
+            <group-row>
+                <midi-button prog="0,1" label="17" value="0" colour="green"></midi-button>
+                <midi-button prog="0,1" label="18" value="8" colour="green"></midi-button>
+                <midi-button prog="0,1" label="19" value="16" colour="green"></midi-button>
+                <midi-button prog="0,1" label="20" value="24" colour="green"></midi-button>
+            </group-row>
+            <group-row>
+                <midi-button prog="0,1" label="21" value="32" colour="green"></midi-button>
+                <midi-button prog="0,1" label="22" value="40" colour="green"></midi-button>
+                <midi-button prog="0,1" label="23" value="48" colour="green"></midi-button>
+                <midi-button prog="0,1" label="24" value="56" colour="green"></midi-button>
+            </group-row>
+            <group-row>
+                <midi-button prog="0,1" label="25" value="64" colour="green"></midi-button>
+                <midi-button prog="0,1" label="26" value="72" colour="green"></midi-button>
+                <midi-button prog="0,1" label="27" value="80" colour="green"></midi-button>
+                <midi-button prog="0,1" label="28" value="88" colour="green"></midi-button>
+            </group-row>
+            <group-row>
+                <midi-button prog="0,1" label="29" value="96" colour="green"></midi-button>
+                <midi-button prog="0,1" label="30" value="104" colour="green"></midi-button>
+                <midi-button prog="0,1" label="31" value="112" colour="green"></midi-button>
+                <midi-button prog="0,1" label="32" value="120" colour="green"></midi-button>
+            </group-row>
+        </group-column>
+    </group-row>
+</body>
+
+</html>
