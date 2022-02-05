@@ -93,7 +93,11 @@
                 <midi-encoder cc="2" label="Exp2<br>%v" colour="#eeeeee"></midi-encoder>
             </group-row>
         </group-column>
-        <group-column margin="1">
+        <div id="userbanksbtn" style="display:none;">
+            <button onclick="show('userbanks')">&#x3E;</button>
+        </div>
+        <group-column margin="1" id="userbanks">
+            <midi-button onclick="hide('userbanks')" label="Hide" grow="0" label-scale="0.2"></midi-button>
             <!-- prog 1,1 = user upper progs  prog 1,0 lower progs value = program number-->
             <h1>User bank's</h1>
             <group-row>
@@ -236,9 +240,9 @@
             <group-row>
                 <h1></h1>
             </group-row>
-            <group-row>
-                <h1></h1>
-            </group-row>
+            <div style="text-align:right">
+                <h1>V2.2</h1>
+            </div>
     </group-column>
     </group-row>
 </body>
