@@ -2,15 +2,36 @@
 <html>
 
 <head>
-    <title>Touch Midi for QUAD CORTEX v2.1</title>
+    <title>Touch Midi for QUAD CORTEX v2.3</title>
     <script src="https://cdn.jsdelivr.net/gh/benc-uk/touchmidi@v2.2.0/dist/bundle.js"></script>
 </head>
 <script>
-    //var groupturnoff =
+    var stompmode = false;
+    var bankchange = false;
+    var presetnotscene = true;
+    var mainbtnscenelaststate="";
+    var mainbtnmainlaststate="";
+    var looper = false;
     function groupturnoff(groups,tama){
+        if(tama.id=="mtStomp")stompmode=true;
+        if(tama.id=="mtPreset")stompmode=false;
+        if(tama.id=="mtScene")stompmode=false;
+        if(stompmode==true && (groups=="grpmainbtns")){
+            return;
+        }
+        if(looper==true && (groups=="grpmainbtns")){
+            return;
+        }
         var collection = document.getElementsByClassName(groups);
         for (var i = 0; i < collection.length; i++) {
             if(collection[i].id==tama.id){
+                var presetchange = false;
+                if(presetnotscene&&groups=="grpmainbtns"){
+                    presetchange = mainbtnmainlaststate!=tama.id;
+                    mainbtnmainlaststate=tama.id;
+                }
+                if(!presetnotscene&&groups=="grpmainbtns")mainbtnscenelaststate=tama.id;
+                if(presetchange)mainbtnscenelaststate="";
                 collection[i].toggle=true;
                 collection[i]._pressed=true;
             } else {
@@ -19,15 +40,67 @@
             }
         }
     }
+    function changetolaststate(id){
+        var idi = null;
+        if(id=="mtPreset"&&mainbtnmainlaststate!="")idi = document.getElementById(mainbtnmainlaststate);
+        if(id=="mtScene"&&mainbtnscenelaststate!="")idi = document.getElementById(mainbtnscenelaststate);
+        if(idi){
+            idi.toggle=true;
+            idi._pressed=true;
+        }
+    }
     function turnoffgroup(groups){
+        if(stompmode==true && groups=="grpmainbtns")
+        {
+            var collection = document.getElementsByClassName(groups);
+            for (var i = 0; i < collection.length; i++) {
+                collection[i].toggle=true;
+                collection[i]._pressed=false;
+            };
+            return;
+        }
+        if(looper==true && groups=="grpmainbtns")
+        {
+            var collection = document.getElementsByClassName(groups);
+            for (var i = 0; i < collection.length; i++) {
+                collection[i].toggle=true;
+                collection[i]._pressed=false;
+            };
+            return;
+        }
         var collection = document.getElementsByClassName(groups);
         for (var i = 0; i < collection.length; i++) {
-            if(collection[i].id=="mbA"){
+            if(collection[i].id=="mbA" && bankchange == true){
+                mainbtnmainlaststate = "mbA";
+                mainbtnscenelaststate = "";
+                bankchange = false;
                 collection[i].toggle=true;
                 collection[i]._pressed=true;
             } else {
                 collection[i].toggle=false;
                 collection[i]._pressed=false;
+            }
+        }
+    }
+    function changelooperbuttons(){
+        changemainbtns("A","Duplicate");
+        changemainbtns("B","Oneshot");
+        changemainbtns("C","Half speed");
+        changemainbtns("D","Punch in");
+        changemainbtns("E","Record");
+        changemainbtns("F","Play");
+        changemainbtns("G","Reverse");
+        changemainbtns("H","Undo");
+    }
+    function changemainbtns(mainbtn,waz){
+        var collection = document.getElementsByClassName("grpmainbtns");
+        for (var i = 0; i < collection.length; i++) {
+            if(collection[i].id=="mb"+mainbtn){
+                if(looper == true){
+                    collection[i].label = waz;
+                } else {
+                    collection[i].label = mainbtn;
+                }
             }
         }
     }
@@ -84,9 +157,9 @@
             <midi-button cc="45" value="0" value-off="110"  label-scale="0.5" label="tuner" toggle colour="#88aa44"></midi-button>
             <midi-button cc="44" label="tempo" value="1"  label-scale="0.5" colour="#00ff00"></midi-button>
             <group-row toggle>
-                <midi-button cc="47" value="0"  toggle id="mtPreset" class="grpmodebtns" onclick="groupturnoff('grpmodebtns',this)" label="Preset" colour="#ffffff"></midi-button>
-                <midi-button cc="47" value="1"  toggle id="mtScene" class="grpmodebtns" onclick="groupturnoff('grpmodebtns',this)"  label="Scene" colour="#cccccc"></midi-button>
-                <midi-button cc="47" value="2"  toggle id="mtStomp" class="grpmodebtns" onclick="groupturnoff('grpmodebtns',this)"  label="Stomp" colour="#aaaaaa"></midi-button>
+                <midi-button cc="47" value="0"  toggle id="mtPreset" class="grpmodebtns" onclick="presetnotscene = true;groupturnoff('grpmodebtns',this);turnoffgroup('grpmainbtns');changetolaststate('mtPreset');" label="Preset" colour="#ffffff"></midi-button>
+                <midi-button cc="47" value="1"  toggle id="mtScene" class="grpmodebtns" onclick="presetnotscene = false;groupturnoff('grpmodebtns',this);turnoffgroup('grpmainbtns');changetolaststate('mtScene');"  label="Scene" colour="#cccccc"></midi-button>
+                <midi-button cc="47" value="2"  toggle id="mtStomp" class="grpmodebtns" onclick="groupturnoff('grpmodebtns',this);turnoffgroup('grpmainbtns');"  label="Stomp" colour="#aaaaaa"></midi-button>
             </group-row>
             <group-row>
                 <midi-encoder cc="1" label="Exp1<br>%v"></midi-encoder>
@@ -101,52 +174,52 @@
             <!-- prog 1,1 = user upper progs  prog 1,0 lower progs value = program number-->
             <h1>User bank's</h1>
             <group-row>
-                <midi-button prog="1,0"  toggle id="ub1" class="grpuserbanksbtns" onclick="groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('gprdefaultbanksbtns')" label="1" value="0" colour="#88ffdd"></midi-button>
-                <midi-button prog="1,0"  toggle id="ub2" class="grpuserbanksbtns" onclick="groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="2" value="8" colour="#88ffdd"></midi-button>
-                <midi-button prog="1,0"  toggle id="ub3" class="grpuserbanksbtns" onclick="groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="3" value="16" colour="#88ffdd"></midi-button>
-                <midi-button prog="1,0"  toggle id="ub4" class="grpuserbanksbtns" onclick="groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="4" value="24" colour="#88ffdd"></midi-button>
+                <midi-button prog="1,0"  toggle id="ub1" class="grpuserbanksbtns" onclick="bankchange=true;groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('gprdefaultbanksbtns')" label="1" value="0" colour="#88ffdd"></midi-button>
+                <midi-button prog="1,0"  toggle id="ub2" class="grpuserbanksbtns" onclick="bankchange=true;groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="2" value="8" colour="#88ffdd"></midi-button>
+                <midi-button prog="1,0"  toggle id="ub3" class="grpuserbanksbtns" onclick="bankchange=true;groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="3" value="16" colour="#88ffdd"></midi-button>
+                <midi-button prog="1,0"  toggle id="ub4" class="grpuserbanksbtns" onclick="bankchange=true;groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="4" value="24" colour="#88ffdd"></midi-button>
             </group-row>
             <group-row>
-                <midi-button prog="1,0"  toggle id="ub5" class="grpuserbanksbtns" onclick="groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="5" value="32" colour="#88ffdd"></midi-button>
-                <midi-button prog="1,0"  toggle id="ub6" class="grpuserbanksbtns" onclick="groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="6" value="40" colour="#88ffdd"></midi-button>
-                <midi-button prog="1,0"  toggle id="ub7" class="grpuserbanksbtns" onclick="groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="7" value="48" colour="#88ffdd"></midi-button>
-                <midi-button prog="1,0"  toggle id="ub8" class="grpuserbanksbtns" onclick="groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="8" value="56" colour="#88ffdd"></midi-button>
+                <midi-button prog="1,0"  toggle id="ub5" class="grpuserbanksbtns" onclick="bankchange=true;groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="5" value="32" colour="#88ffdd"></midi-button>
+                <midi-button prog="1,0"  toggle id="ub6" class="grpuserbanksbtns" onclick="bankchange=true;groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="6" value="40" colour="#88ffdd"></midi-button>
+                <midi-button prog="1,0"  toggle id="ub7" class="grpuserbanksbtns" onclick="bankchange=true;groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="7" value="48" colour="#88ffdd"></midi-button>
+                <midi-button prog="1,0"  toggle id="ub8" class="grpuserbanksbtns" onclick="bankchange=true;groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="8" value="56" colour="#88ffdd"></midi-button>
             </group-row>
             <group-row>
-                <midi-button prog="1,0"  toggle id="ub9" class="grpuserbanksbtns" onclick="groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="9" value="64" colour="#88ffdd"></midi-button>
-                <midi-button prog="1,0"  toggle id="ub10" class="grpuserbanksbtns" onclick="groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="10" value="72" colour="#88ffdd"></midi-button>
-                <midi-button prog="1,0"  toggle id="ub11" class="grpuserbanksbtns" onclick="groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="11" value="80" colour="#88ffdd"></midi-button>
-                <midi-button prog="1,0"  toggle id="ub12" class="grpuserbanksbtns" onclick="groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="12" value="88" colour="#88ffdd"></midi-button>
+                <midi-button prog="1,0"  toggle id="ub9" class="grpuserbanksbtns" onclick="bankchange=true;groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="9" value="64" colour="#88ffdd"></midi-button>
+                <midi-button prog="1,0"  toggle id="ub10" class="grpuserbanksbtns" onclick="bankchange=true;groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="10" value="72" colour="#88ffdd"></midi-button>
+                <midi-button prog="1,0"  toggle id="ub11" class="grpuserbanksbtns" onclick="bankchange=true;groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="11" value="80" colour="#88ffdd"></midi-button>
+                <midi-button prog="1,0"  toggle id="ub12" class="grpuserbanksbtns" onclick="bankchange=true;groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="12" value="88" colour="#88ffdd"></midi-button>
             </group-row>
             <group-row>
-                <midi-button prog="1,0"  toggle id="ub13" class="grpuserbanksbtns" onclick="groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="13" value="96" colour="#88ffdd"></midi-button>
-                <midi-button prog="1,0"  toggle id="ub14" class="grpuserbanksbtns" onclick="groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="14" value="104" colour="#88ffdd"></midi-button>
-                <midi-button prog="1,0"  toggle id="ub15" class="grpuserbanksbtns" onclick="groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="15" value="112" colour="#88ffdd"></midi-button>
-                <midi-button prog="1,0"  toggle id="ub16" class="grpuserbanksbtns" onclick="groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="16" value="120" colour="#88ffdd"></midi-button>
+                <midi-button prog="1,0"  toggle id="ub13" class="grpuserbanksbtns" onclick="bankchange=true;groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="13" value="96" colour="#88ffdd"></midi-button>
+                <midi-button prog="1,0"  toggle id="ub14" class="grpuserbanksbtns" onclick="bankchange=true;groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="14" value="104" colour="#88ffdd"></midi-button>
+                <midi-button prog="1,0"  toggle id="ub15" class="grpuserbanksbtns" onclick="bankchange=true;groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="15" value="112" colour="#88ffdd"></midi-button>
+                <midi-button prog="1,0"  toggle id="ub16" class="grpuserbanksbtns" onclick="bankchange=true;groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="16" value="120" colour="#88ffdd"></midi-button>
             </group-row>
             <group-row>
-                <midi-button prog="1,1"  toggle id="ub17" class="grpuserbanksbtns" onclick="groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="17" value="0" colour="#88ffdd"></midi-button>
-                <midi-button prog="1,1"  toggle id="ub18" class="grpuserbanksbtns" onclick="groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="18" value="8" colour="#88ffdd"></midi-button>
-                <midi-button prog="1,1"  toggle id="ub19" class="grpuserbanksbtns" onclick="groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="19" value="16" colour="#88ffdd"></midi-button>
-                <midi-button prog="1,1"  toggle id="ub20" class="grpuserbanksbtns" onclick="groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="20" value="24" colour="#88ffdd"></midi-button>
+                <midi-button prog="1,1"  toggle id="ub17" class="grpuserbanksbtns" onclick="bankchange=true;groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="17" value="0" colour="#88ffdd"></midi-button>
+                <midi-button prog="1,1"  toggle id="ub18" class="grpuserbanksbtns" onclick="bankchange=true;groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="18" value="8" colour="#88ffdd"></midi-button>
+                <midi-button prog="1,1"  toggle id="ub19" class="grpuserbanksbtns" onclick="bankchange=true;groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="19" value="16" colour="#88ffdd"></midi-button>
+                <midi-button prog="1,1"  toggle id="ub20" class="grpuserbanksbtns" onclick="bankchange=true;groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="20" value="24" colour="#88ffdd"></midi-button>
             </group-row>
             <group-row>
-                <midi-button prog="1,1"  toggle id="ub21" class="grpuserbanksbtns" onclick="groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="21" value="32" colour="#88ffdd"></midi-button>
-                <midi-button prog="1,1"  toggle id="ub22" class="grpuserbanksbtns" onclick="groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="22" value="40" colour="#88ffdd"></midi-button>
-                <midi-button prog="1,1"  toggle id="ub23" class="grpuserbanksbtns" onclick="groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="23" value="48" colour="#88ffdd"></midi-button>
-                <midi-button prog="1,1"  toggle id="ub24" class="grpuserbanksbtns" onclick="groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="24" value="56" colour="#88ffdd"></midi-button>
+                <midi-button prog="1,1"  toggle id="ub21" class="grpuserbanksbtns" onclick="bankchange=true;groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="21" value="32" colour="#88ffdd"></midi-button>
+                <midi-button prog="1,1"  toggle id="ub22" class="grpuserbanksbtns" onclick="bankchange=true;groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="22" value="40" colour="#88ffdd"></midi-button>
+                <midi-button prog="1,1"  toggle id="ub23" class="grpuserbanksbtns" onclick="bankchange=true;groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="23" value="48" colour="#88ffdd"></midi-button>
+                <midi-button prog="1,1"  toggle id="ub24" class="grpuserbanksbtns" onclick="bankchange=true;groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="24" value="56" colour="#88ffdd"></midi-button>
             </group-row>
             <group-row>
-                <midi-button prog="1,1"  toggle id="ub25" class="grpuserbanksbtns" onclick="groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="25" value="64" colour="#88ffdd"></midi-button>
-                <midi-button prog="1,1"  toggle id="ub26" class="grpuserbanksbtns" onclick="groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="26" value="72" colour="#88ffdd"></midi-button>
-                <midi-button prog="1,1"  toggle id="ub27" class="grpuserbanksbtns" onclick="groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="27" value="80" colour="#88ffdd"></midi-button>
-                <midi-button prog="1,1"  toggle id="ub28" class="grpuserbanksbtns" onclick="groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="28" value="88" colour="#88ffdd"></midi-button>
+                <midi-button prog="1,1"  toggle id="ub25" class="grpuserbanksbtns" onclick="bankchange=true;groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="25" value="64" colour="#88ffdd"></midi-button>
+                <midi-button prog="1,1"  toggle id="ub26" class="grpuserbanksbtns" onclick="bankchange=true;groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="26" value="72" colour="#88ffdd"></midi-button>
+                <midi-button prog="1,1"  toggle id="ub27" class="grpuserbanksbtns" onclick="bankchange=true;groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="27" value="80" colour="#88ffdd"></midi-button>
+                <midi-button prog="1,1"  toggle id="ub28" class="grpuserbanksbtns" onclick="bankchange=true;groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="28" value="88" colour="#88ffdd"></midi-button>
             </group-row>
             <group-row>
-                <midi-button prog="1,1"  toggle id="ub29" class="grpuserbanksbtns" onclick="groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="29" value="96" colour="#88ffdd"></midi-button>
-                <midi-button prog="1,1"  toggle id="ub30" class="grpuserbanksbtns" onclick="groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="30" value="104" colour="#88ffdd"></midi-button>
-                <midi-button prog="1,1"  toggle id="ub31" class="grpuserbanksbtns" onclick="groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="31" value="112" colour="#88ffdd"></midi-button>
-                <midi-button prog="1,1"  toggle id="ub32" class="grpuserbanksbtns" onclick="groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="32" value="120" colour="#88ffdd"></midi-button>
+                <midi-button prog="1,1"  toggle id="ub29" class="grpuserbanksbtns" onclick="bankchange=true;groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="29" value="96" colour="#88ffdd"></midi-button>
+                <midi-button prog="1,1"  toggle id="ub30" class="grpuserbanksbtns" onclick="bankchange=true;groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="30" value="104" colour="#88ffdd"></midi-button>
+                <midi-button prog="1,1"  toggle id="ub31" class="grpuserbanksbtns" onclick="bankchange=true;groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="31" value="112" colour="#88ffdd"></midi-button>
+                <midi-button prog="1,1"  toggle id="ub32" class="grpuserbanksbtns" onclick="bankchange=true;groupturnoff('grpuserbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpdefaultbanksbtns')" label="32" value="120" colour="#88ffdd"></midi-button>
             </group-row>
         </group-column>
         <div id="defbanksbtn" style="display:none;">
@@ -157,52 +230,52 @@
             <!-- prog 1,1 = user upper progs  prog 1,0 lower progs value = program number-->
             <h1>Default bank's</h1>
             <group-row id="defbanksoriglen">
-                <midi-button prog="0,0"  toggle id="db1" class="gprdefaultbanksbtns" onclick="groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="1" value="0" colour="#88ffdd"></midi-button>
-                <midi-button prog="0,0"  toggle id="db2" class="gprdefaultbanksbtns" onclick="groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="2" value="8" colour="#88ffdd"></midi-button>
-                <midi-button prog="0,0"  toggle id="db3" class="gprdefaultbanksbtns" onclick="groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="3" value="16" colour="#88ffdd"></midi-button>
-                <midi-button prog="0,0"  toggle id="db4" class="gprdefaultbanksbtns" onclick="groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="4" value="24" colour="#88ffdd"></midi-button>
+                <midi-button prog="0,0"  toggle id="db1" class="gprdefaultbanksbtns" onclick="bankchange=true;groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="1" value="0" colour="#88ffdd"></midi-button>
+                <midi-button prog="0,0"  toggle id="db2" class="gprdefaultbanksbtns" onclick="bankchange=true;groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="2" value="8" colour="#88ffdd"></midi-button>
+                <midi-button prog="0,0"  toggle id="db3" class="gprdefaultbanksbtns" onclick="bankchange=true;groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="3" value="16" colour="#88ffdd"></midi-button>
+                <midi-button prog="0,0"  toggle id="db4" class="gprdefaultbanksbtns" onclick="bankchange=true;groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="4" value="24" colour="#88ffdd"></midi-button>
             </group-row>
             <group-row>
-                <midi-button prog="0,0"  toggle id="db5" class="gprdefaultbanksbtns" onclick="groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="5" value="32" colour="#88ffdd"></midi-button>
-                <midi-button prog="0,0"  toggle id="db6" class="gprdefaultbanksbtns" onclick="groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="6" value="40" colour="#88ffdd"></midi-button>
-                <midi-button prog="0,0"  toggle id="db7" class="gprdefaultbanksbtns" onclick="groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="7" value="48" colour="#88ffdd"></midi-button>
-                <midi-button prog="0,0"  toggle id="db8" class="gprdefaultbanksbtns" onclick="groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="8" value="56" colour="#88ffdd"></midi-button>
+                <midi-button prog="0,0"  toggle id="db5" class="gprdefaultbanksbtns" onclick="bankchange=true;groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="5" value="32" colour="#88ffdd"></midi-button>
+                <midi-button prog="0,0"  toggle id="db6" class="gprdefaultbanksbtns" onclick="bankchange=true;groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="6" value="40" colour="#88ffdd"></midi-button>
+                <midi-button prog="0,0"  toggle id="db7" class="gprdefaultbanksbtns" onclick="bankchange=true;groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="7" value="48" colour="#88ffdd"></midi-button>
+                <midi-button prog="0,0"  toggle id="db8" class="gprdefaultbanksbtns" onclick="bankchange=true;groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="8" value="56" colour="#88ffdd"></midi-button>
             </group-row>
             <group-row>
-                <midi-button prog="0,0"  toggle id="db9" class="gprdefaultbanksbtns" onclick="groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="9" value="64" colour="#88ffdd"></midi-button>
-                <midi-button prog="0,0"  toggle id="db10" class="gprdefaultbanksbtns" onclick="groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="10" value="72" colour="#88ffdd"></midi-button>
-                <midi-button prog="0,0"  toggle id="db11" class="gprdefaultbanksbtns" onclick="groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="11" value="80" colour="#88ffdd"></midi-button>
-                <midi-button prog="0,0"  toggle id="db12" class="gprdefaultbanksbtns" onclick="groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="12" value="88" colour="#88ffdd"></midi-button>
+                <midi-button prog="0,0"  toggle id="db9" class="gprdefaultbanksbtns" onclick="bankchange=true;groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="9" value="64" colour="#88ffdd"></midi-button>
+                <midi-button prog="0,0"  toggle id="db10" class="gprdefaultbanksbtns" onclick="bankchange=true;groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="10" value="72" colour="#88ffdd"></midi-button>
+                <midi-button prog="0,0"  toggle id="db11" class="gprdefaultbanksbtns" onclick="bankchange=true;groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="11" value="80" colour="#88ffdd"></midi-button>
+                <midi-button prog="0,0"  toggle id="db12" class="gprdefaultbanksbtns" onclick="bankchange=true;groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="12" value="88" colour="#88ffdd"></midi-button>
             </group-row>
             <group-row>
-                <midi-button prog="0,0"  toggle id="db13" class="gprdefaultbanksbtns" onclick="groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="13" value="96" colour="#88ffdd"></midi-button>
-                <midi-button prog="0,0"  toggle id="db14" class="gprdefaultbanksbtns" onclick="groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="14" value="104" colour="#88ffdd"></midi-button>
-                <midi-button prog="0,0"  toggle id="db15" class="gprdefaultbanksbtns" onclick="groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="15" value="112" colour="#88ffdd"></midi-button>
-                <midi-button prog="0,0"  toggle id="db16" class="gprdefaultbanksbtns" onclick="groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="16" value="120" colour="#88ffdd"></midi-button>
+                <midi-button prog="0,0"  toggle id="db13" class="gprdefaultbanksbtns" onclick="bankchange=true;groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="13" value="96" colour="#88ffdd"></midi-button>
+                <midi-button prog="0,0"  toggle id="db14" class="gprdefaultbanksbtns" onclick="bankchange=true;groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="14" value="104" colour="#88ffdd"></midi-button>
+                <midi-button prog="0,0"  toggle id="db15" class="gprdefaultbanksbtns" onclick="bankchange=true;groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="15" value="112" colour="#88ffdd"></midi-button>
+                <midi-button prog="0,0"  toggle id="db16" class="gprdefaultbanksbtns" onclick="bankchange=true;groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="16" value="120" colour="#88ffdd"></midi-button>
             </group-row>
             <group-row>
-                <midi-button prog="0,1"  toggle id="db17" class="gprdefaultbanksbtns" onclick="groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="17" value="0" colour="#88ffdd"></midi-button>
-                <midi-button prog="0,1"  toggle id="db18" class="gprdefaultbanksbtns" onclick="groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="18" value="8" colour="#88ffdd"></midi-button>
-                <midi-button prog="0,1"  toggle id="db19" class="gprdefaultbanksbtns" onclick="groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="19" value="16" colour="#88ffdd"></midi-button>
-                <midi-button prog="0,1"  toggle id="db20" class="gprdefaultbanksbtns" onclick="groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="20" value="24" colour="#88ffdd"></midi-button>
+                <midi-button prog="0,1"  toggle id="db17" class="gprdefaultbanksbtns" onclick="bankchange=true;groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="17" value="0" colour="#88ffdd"></midi-button>
+                <midi-button prog="0,1"  toggle id="db18" class="gprdefaultbanksbtns" onclick="bankchange=true;groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="18" value="8" colour="#88ffdd"></midi-button>
+                <midi-button prog="0,1"  toggle id="db19" class="gprdefaultbanksbtns" onclick="bankchange=true;groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="19" value="16" colour="#88ffdd"></midi-button>
+                <midi-button prog="0,1"  toggle id="db20" class="gprdefaultbanksbtns" onclick="bankchange=true;groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="20" value="24" colour="#88ffdd"></midi-button>
             </group-row>
             <group-row>
-                <midi-button prog="0,1"  toggle id="db21" class="gprdefaultbanksbtns" onclick="groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="21" value="32" colour="#88ffdd"></midi-button>
-                <midi-button prog="0,1"  toggle id="db22" class="gprdefaultbanksbtns" onclick="groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="22" value="40" colour="#88ffdd"></midi-button>
-                <midi-button prog="0,1"  toggle id="db23" class="gprdefaultbanksbtns" onclick="groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="23" value="48" colour="#88ffdd"></midi-button>
-                <midi-button prog="0,1"  toggle id="db24" class="gprdefaultbanksbtns" onclick="groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="24" value="56" colour="#88ffdd"></midi-button>
+                <midi-button prog="0,1"  toggle id="db21" class="gprdefaultbanksbtns" onclick="bankchange=true;groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="21" value="32" colour="#88ffdd"></midi-button>
+                <midi-button prog="0,1"  toggle id="db22" class="gprdefaultbanksbtns" onclick="bankchange=true;groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="22" value="40" colour="#88ffdd"></midi-button>
+                <midi-button prog="0,1"  toggle id="db23" class="gprdefaultbanksbtns" onclick="bankchange=true;groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="23" value="48" colour="#88ffdd"></midi-button>
+                <midi-button prog="0,1"  toggle id="db24" class="gprdefaultbanksbtns" onclick="bankchange=true;groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="24" value="56" colour="#88ffdd"></midi-button>
             </group-row>
             <group-row>
-                <midi-button prog="0,1"  toggle id="db25" class="gprdefaultbanksbtns" onclick="groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="25" value="64" colour="#88ffdd"></midi-button>
-                <midi-button prog="0,1"  toggle id="db26" class="gprdefaultbanksbtns" onclick="groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="26" value="72" colour="#88ffdd"></midi-button>
-                <midi-button prog="0,1"  toggle id="db27" class="gprdefaultbanksbtns" onclick="groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="27" value="80" colour="#88ffdd"></midi-button>
-                <midi-button prog="0,1"  toggle id="db28" class="gprdefaultbanksbtns" onclick="groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="28" value="88" colour="#88ffdd"></midi-button>
+                <midi-button prog="0,1"  toggle id="db25" class="gprdefaultbanksbtns" onclick="bankchange=true;groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="25" value="64" colour="#88ffdd"></midi-button>
+                <midi-button prog="0,1"  toggle id="db26" class="gprdefaultbanksbtns" onclick="bankchange=true;groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="26" value="72" colour="#88ffdd"></midi-button>
+                <midi-button prog="0,1"  toggle id="db27" class="gprdefaultbanksbtns" onclick="bankchange=true;groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="27" value="80" colour="#88ffdd"></midi-button>
+                <midi-button prog="0,1"  toggle id="db28" class="gprdefaultbanksbtns" onclick="bankchange=true;groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="28" value="88" colour="#88ffdd"></midi-button>
             </group-row>
             <group-row>
-                <midi-button prog="0,1"  toggle id="db29" class="gprdefaultbanksbtns" onclick="groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="29" value="96" colour="#88ffdd"></midi-button>
-                <midi-button prog="0,1"  toggle id="db30" class="gprdefaultbanksbtns" onclick="groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="30" value="104" colour="#88ffdd"></midi-button>
-                <midi-button prog="0,1"  toggle id="db31" class="gprdefaultbanksbtns" onclick="groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="31" value="112" colour="#88ffdd"></midi-button>
-                <midi-button prog="0,1"  toggle id="db32" class="gprdefaultbanksbtns" onclick="groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="32" value="120" colour="#88ffdd"></midi-button>
+                <midi-button prog="0,1"  toggle id="db29" class="gprdefaultbanksbtns" onclick="bankchange=true;groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="29" value="96" colour="#88ffdd"></midi-button>
+                <midi-button prog="0,1"  toggle id="db30" class="gprdefaultbanksbtns" onclick="bankchange=true;groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="30" value="104" colour="#88ffdd"></midi-button>
+                <midi-button prog="0,1"  toggle id="db31" class="gprdefaultbanksbtns" onclick="bankchange=true;groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="31" value="112" colour="#88ffdd"></midi-button>
+                <midi-button prog="0,1"  toggle id="db32" class="gprdefaultbanksbtns" onclick="bankchange=true;groupturnoff('gprdefaultbanksbtns',this);turnoffgroup('grpscenebtns');turnoffgroup('grpmainbtns');turnoffgroup('grpuserbanksbtns')" label="32" value="120" colour="#88ffdd"></midi-button>
             </group-row>
         </group-column>
         <div id="looperbtn" style="display:none;">
@@ -214,8 +287,8 @@
             <group-row>
                 <midi-button cc="61" label="&#x1F3A4;<br>in1" value="1"  value-off="1" label-scale="1.5" toggle colour="grey" id="in1" class="inputs" onclick="groupturnoff('inputs',this)" ></midi-button>
                 <midi-button cc="61" label="&#x23DB;<br>grid" value="0"  value-off="0" label-scale="1.5" toggle colour="grey" id="gridinput" class="inputs" onclick="groupturnoff('inputs',this)"></midi-button>
-                <!--midi-button cc="49" label="&#x2398;<br>dup." value="64"  value-off="127" label-scale="1.5" toggle colour="grey"></midi-button>
-                <midi-button cc="48" label="&#x1F4C2;" value="64"  value-off="64" label-scale="2.0" toggle colour="grey"></midi-button-->
+                <!--midi-button cc="49" label="&#x2398;<br>dup." value="64"  value-off="127" label-scale="1.5" toggle colour="grey"></midi-button-->
+                <midi-button cc="48" label="&#x1F4C2;" value="64" onclick="looper=!looper;changelooperbuttons();" value-off="64" label-scale="2.0" toggle colour="grey"></midi-button>
             </group-row>
             <group-row>
                 <midi-button cc="53" label="&#x23FA;" value="64" value-off="63" label-scale="0.6" toggle colour="red"></midi-button>
@@ -241,7 +314,7 @@
                 <h1></h1>
             </group-row>
             <div style="text-align:right">
-                <h1>V2.2</h1>
+                <h1>V2.3</h1>
             </div>
     </group-column>
     </group-row>
