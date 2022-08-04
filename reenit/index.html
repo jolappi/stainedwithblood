@@ -85,7 +85,7 @@ var bottles = firebase.database().ref('web/');
 bottles.on('value', function(snapshot) {
   var bss = snapshot.val();
   //var arr = "<center><b><label for='replace'>replace</label><br><textarea id='replace' type='text' onfocusout='write007(replacq)' onkeydown='if(event.keyCode == 13) write007(replacq);'></textarea><br></center>";
-  var arr = "<center><b><label for='replace'id='replacedate'>replace</label></b><br><textarea id='replace' rows='4' cols='30' type='text' onfocusout='write007(replacq)'></textarea><br></center>";
+  var arr = "<b><label for='replace'id='replacedate'>replace</label></b><br><textarea id='replace' rows='4' cols='30' type='text' onfocusout='write007(replacq)'></textarea><br>";
   var ins = "";
   var refs = [];
   Object.keys(bss).forEach(function(key){
