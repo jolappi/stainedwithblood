@@ -287,6 +287,7 @@
             updates['/files/' + fn + '/date/'] = new Date();
             updates['/files/' + fn + '/src/'] = filedata;
             updates['/files/' + fn + '/name/'] = fn;
+            alert("Saved the day, my man!");
             return firebase.database().ref().update(updates);
         }
     }
