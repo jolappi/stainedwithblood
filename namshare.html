@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex">
+    <meta name="googlebot" content="noindex">
+    <meta name="googlebot-news" content="nosnippet">
+    <title>Nam Share</title>
+    <style media="screen">
+        body {
+            font-family: Roboto, Arial, sans-serif;
+            background: #E0E0E0;
+            color: rgba(0, 0, 0, 0.87);
+            marging: 0px;
+            width: 100%;
+        }
+
+        a {
+            color: rgb(3, 155, 229);
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid black;
+            padding-right: 2px;
+            padding-left: 2px;
+            background: #FFFFFF;
+        }
+
+        th:first-of-type {
+            border-top-left-radius: 10px;
+        }
+
+        th:last-of-type {
+            border-top-right-radius: 10px;
+        }
+
+        tr:last-of-type td:first-of-type {
+            border-bottom-left-radius: 10px;
+        }
+
+        tr:last-of-type td:last-of-type {
+            border-bottom-right-radius: 10px;
+        }
+
+        table {
+            border: 1px solid #ddd;
+            border-collapse: separate;
+            border-left: 0;
+            border-radius: 8px;
+            border-spacing: 0px;
+        }
+
+        thead {
+            display: table-header-group;
+            vertical-align: middle;
+            border-color: inherit;
+            border-collapse: separate;
+        }
+
+        tr {
+            display: table-row;
+            vertical-align: inherit;
+            border-color: inherit;
+        }
+
+        th,
+        td {
+            padding: 5px 4px 6px 4px;
+            text-align: left;
+            vertical-align: top;
+            border-left: 1px solid #ddd;
+        }
+
+        td {
+            border-top: 1px solid #ddd;
+        }
+
+        thead:first-child tr:first-child th:first-child,
+        tbody:first-child tr:first-child td:first-child {
+            border-radius: 4px 0 0 0;
+        }
+
+        thead:last-child tr:last-child th:first-child,
+        tbody:last-child tr:last-child td:first-child {
+            border-radius: 0 0 0 4px;
+        }
+
+        textarea {
+            width: 98%;
+        }
+
+        .textwrapper {
+            border: 1px solid #999999;
+            margin: 5px 0;
+            padding: 3px;
+        }
+    </style>
+</head>
+<script src="https://www.gstatic.com/firebasejs/3.6.2/firebase.js"></script>
+<script>
+    // Initialize Firebase
+    // TODO: Replace with your project's customized code snippet
+    var config = {
+        apiKey: "AIzaSyBuxxYDwyxSA1DSMRnDfQZYLyj0rQmI980",
+        databaseURL: "https://vtmv20.firebaseio.com",
+    };
+    firebase.initializeApp(config);
+    var bottles = firebase.database().ref('files/');
+    bottles.on('value', function(snapshot) {
+        var bss = snapshot.val();
+        //var arr = "<center><b><label for='replace'>replace</label><br><textarea id='replace' type='text' onfocusout='write007(replacq)' onkeydown='if(event.keyCode == 13) write007(replacq);'></textarea><br></center>";
+        var arr = "\
+    <tr>\
+    <td id='replacegain'></td>\
+    <td id='replaceboost'></td>\
+    <td id='replaceamp'></td>\
+    <td id='replacecab'></td>\
+    <td id='replacedesc'></td>\
+    <td id='replacehref'></td>\
+    <td id='replacedate'></td></tr>";
+        var ins = "";
+        var refs = [];
+        Object.keys(bss).forEach(function(key) {
+            ins = ins + arr.replace(/replace/g, key).replace(/replacdesc/g, '"' + key + '"');
+            refs.push(key);
+        });
+        document.getElementById("taabbeli").innerHTML =
+            "<table><th onclick='sortTable(0)'>Gain &#11021;</th><th onclick='sortTable(1)'>Boost &#11021;</th><th onclick='sortTable(2)'>Amp &#11021;</th><th onclick='sortTable(3)'>Cab &#11021;</th><th onclick='sortTable(4)'>Description &#11021;</th><th onclick='sortTable(5)'>File &#11021;</th><th onclick='sortTable(6)'>Date &#11021;</th>" +
+            ins + "</table>";
+        document.getElementById("message").innerHTML = "";
+        refs.forEach(function(key) {
+            var ref = firebase.database().ref('files/' + key + '/');
+            ref.on('value', function(snapshot) {
+                document.getElementById(key + 'date').innerHTML = document.getElementById(key + 'date').innerHTML + ' ' + (snapshot.val().date ? snapshot.val().date : '');
+                document.getElementById(key + 'desc').innerHTML = document.getElementById(key + 'desc').innerHTML + ' ' + (snapshot.val().desc ? snapshot.val().desc : '');
+                document.getElementById(key + 'amp').innerHTML = document.getElementById(key + 'amp').innerHTML + ' ' + (snapshot.val().amp ? snapshot.val().amp : '');
+                document.getElementById(key + 'boost').innerHTML = document.getElementById(key + 'boost').innerHTML + ' ' + (snapshot.val().boost ? snapshot.val().boost : '');
+                document.getElementById(key + 'cab').innerHTML = document.getElementById(key + 'cab').innerHTML + ' ' + (snapshot.val().cab ? snapshot.val().cab : '');
+                document.getElementById(key + 'gain').innerHTML = document.getElementById(key + 'gain').innerHTML + ' ' + (snapshot.val().gain ? snapshot.val().gain : '');
+                // document.getElementById(key+'desc').value = snapshot.val().desc;
+                // document.getElementById(key+'ref').value = snapshot.val().src;
+                function downloadURI(uri, name) {
+                    var link = document.createElement("a");
+                    link.download = name + ".nam";
+                    link.innerHTML = name + ".nam";
+                    link.href = uri;
+                    var rpl = document.getElementById(key + 'href');
+                    rpl.appendChild(link);
+                    //link.click();
+                    //document.body.removeChild(link);
+                    //delete link;
+                }
+                if (snapshot.val().src)
+                    downloadURI("data:text/html," + snapshot.val().src, snapshot.val().name);
+            });
+        });
+    });
+</script>
+
+<body>
+    <center>
+        <table id="tabel">
+            <tr>
+                <th colspan="3">
+                    <center>Upload</center>
+                </th>
+            </tr>
+            <tr>
+                <td colspan="3">
+                    <center>
+                        <input type="file" id="file" accept=".nam">
+                    </center>
+                </td>
+            </tr>
+            <tr>
+                <td>Boost:</td>
+                <td><input type="text" id="boost"></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Amp:</td>
+                <td><input type="text" id="amp"></td>
+                <td>Gain:<select id="gain">
+                        <option value="Clean">Clean</option>
+                        <option value="Edge of breakup">Edge of breakup</option>
+                        <option value="Crunch">Crunch</option>
+                        <option value="Higain">Higain</option>
+                    </select>
+            </tr>
+            <tr>
+                <td>Cab:</td>
+                <td><input type="text" id="cab"></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Description:</td>
+                <td colspan="2"><textarea id="desc" rows=3></textarea>
+                    <!--input type="text" id="desc"-->
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3">
+                    <center><button onclick="uploadfile()">upload</button></center>
+                </td>
+            </tr>
+        </table>
+        <br>
+        <h1>Download</h1>
+        <table id="taabbeli" style="max-width:80%;">
+        </table>
+        <div id="message">
+            <!--h1>Welcome</h1-->
+            <center>
+                <p>Loading!</p>
+            </center>
+            <ul>
+                <li><a target="_blank" href="https://firebase.google.com/docs/hosting/">Please wait!!!</a></li>
+            </ul>
+        </div>
+    </center>
+</body>
+<script>
+    var uploadField = document.getElementById("file");
+    var filedata = "";
+    uploadField.onchange = function() {
+        if (window.find(this.files[0].name)) {
+            alert("File already exist!");
+            this.value = "";
+            return;
+        }
+        if (this.files[0].name.indexOf(".nam") == -1) {
+            alert("Only nam files allowed!");
+            this.value = "";
+            return;
+        }
+        if (this.files[0].size > 410000) {
+            alert("File is too big!");
+            this.value = "";
+        }
+        if (this.files[0].size < 390000) {
+            alert("File is too small!");
+            this.value = "";
+        } else {
+            var reader = new FileReader()
+            reader.onload = function() {
+                filedata = reader.result.replaceAll(" ", "");
+                //console.log(reader.result);
+            };
+            reader.readAsText(event.target.files[0])
+        }
+    };
+    uploadfile = function() {
+        var fil = document.getElementById("file");
+        if (!fil.files[0] || !fil.files[0].name) {
+            alert('Please select file!');
+            return;
+        }
+        if (!document.getElementById('amp').value || document.getElementById('amp').value == '') {
+            alert('At least amp needs to be named');
+            return;
+        }
+        if (fil.files[0].name.indexOf(".nam") == -1) {
+            alert('Only nam files allowed!');
+            return;
+        }
+        if (fil.files[0].name) {
+            var fn = fil.files[0].name.split(".")[0].replaceAll('#', '');
+            var updates = {};
+            updates['/files/' + fn + '/desc/'] = document.getElementById('desc').value;
+            updates['/files/' + fn + '/boost/'] = document.getElementById('boost').value;
+            updates['/files/' + fn + '/amp/'] = document.getElementById('amp').value;
+            updates['/files/' + fn + '/cab/'] = document.getElementById('cab').value;
+            updates['/files/' + fn + '/gain/'] = document.getElementById('gain').value;
+            //var utc = new Date().toJSON().slice(0,10).replace(/-/g,'/');
+            updates['/files/' + fn + '/date/'] = new Date();
+            updates['/files/' + fn + '/src/'] = filedata;
+            updates['/files/' + fn + '/name/'] = fn;
+            return firebase.database().ref().update(updates);
+        }
+    }
+
+    function sortTable(n) {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        table2 = document.getElementById("taabbeli");
+        switching = true;
+        // Set the sorting direction to ascending:
+        dir = "asc";
+        /* Make a loop that will continue until
+        no switching has been done: */
+        while (switching) {
+            // Start by saying: no switching is done:
+            switching = false;
+            rows = table2.rows;
+            /* Loop through all table rows (except the
+            first, which contains table headers): */
+            for (i = 1; i < (rows.length - 1); i++) {
+                // Start by saying there should be no switching:
+                shouldSwitch = false;
+                /* Get the two elements you want to compare,
+                one from current row and one from the next: */
+                x = rows[i].getElementsByTagName("td")[n];
+                y = rows[i + 1].getElementsByTagName("td")[n];
+                /* Check if the two rows should switch place,
+                based on the direction, asc or desc: */
+                if (dir == "asc") {
+                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                        // If so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
+                } else if (dir == "desc") {
+                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                        // If so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                /* If a switch has been marked, make the switch
+                and mark that a switch has been done: */
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                // Each time a switch is done, increase this count by 1:
+                switchcount++;
+            } else {
+                /* If no switching has been done AND the direction is "asc",
+                set the direction to "desc" and run the while loop again. */
+                if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+</script>
+
+</html>
