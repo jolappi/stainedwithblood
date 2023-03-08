@@ -121,6 +121,7 @@
     <td id='replacecab'></td>\
     <td id='replacedesc'></td>\
     <td id='replacehref'></td>\
+    <td id='replaceuploader'></td>\
     <td id='replacedate'></td></tr>";
         var ins = "";
         var refs = [];
@@ -129,7 +130,7 @@
             refs.push(key);
         });
         document.getElementById("taabbeli").innerHTML =
-            "<table><th onclick='sortTable(0)'>Gain &#11021;</th><th onclick='sortTable(1)'>Boost &#11021;</th><th onclick='sortTable(2)'>Amp &#11021;</th><th onclick='sortTable(3)'>Cab &#11021;</th><th onclick='sortTable(4)'>Description &#11021;</th><th onclick='sortTable(5)'>File &#11021;</th><th onclick='sortTable(6)'>Date &#11021;</th>" +
+            "<table><th onclick='sortTable(0)'>Gain &#11021;</th><th onclick='sortTable(1)'>Boost &#11021;</th><th onclick='sortTable(2)'>Amp &#11021;</th><th onclick='sortTable(3)'>Cab &#11021;</th><th onclick='sortTable(4)'>Description &#11021;</th><th onclick='sortTable(5)'>File &#11021;</th><th onclick='sortTable(6)'>Uploader &#11021;</th><th onclick='sortTable(7)'>Date &#11021;</th>" +
             ins + "</table>";
         document.getElementById("message").innerHTML = "";
         refs.forEach(function(key) {
@@ -141,6 +142,7 @@
                 document.getElementById(key + 'boost').innerHTML = document.getElementById(key + 'boost').innerHTML + ' ' + (snapshot.val().boost ? snapshot.val().boost : '');
                 document.getElementById(key + 'cab').innerHTML = document.getElementById(key + 'cab').innerHTML + ' ' + (snapshot.val().cab ? snapshot.val().cab : '');
                 document.getElementById(key + 'gain').innerHTML = document.getElementById(key + 'gain').innerHTML + ' ' + (snapshot.val().gain ? snapshot.val().gain : '');
+                document.getElementById(key + 'uploader').innerHTML = document.getElementById(key + 'uploader').innerHTML + ' ' + (snapshot.val().uploader ? snapshot.val().uploader : '');
                 // document.getElementById(key+'desc').value = snapshot.val().desc;
                 // document.getElementById(key+'ref').value = snapshot.val().src;
                 function downloadURI(uri, name) {
@@ -194,6 +196,11 @@
             <tr>
                 <td>Cab:</td>
                 <td><input type="text" id="cab"></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Uploader:</td>
+                <td><input type="text" id="uploader"></td>
                 <td></td>
             </tr>
             <tr>
@@ -275,6 +282,7 @@
             updates['/files/' + fn + '/amp/'] = document.getElementById('amp').value;
             updates['/files/' + fn + '/cab/'] = document.getElementById('cab').value;
             updates['/files/' + fn + '/gain/'] = document.getElementById('gain').value;
+            updates['/files/' + fn + '/gain/'] = document.getElementById('uploader').value;
             //var utc = new Date().toJSON().slice(0,10).replace(/-/g,'/');
             updates['/files/' + fn + '/date/'] = new Date();
             updates['/files/' + fn + '/src/'] = filedata;
