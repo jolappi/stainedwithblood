@@ -108,15 +108,16 @@
         apiKey: "AIzaSyBuxxYDwyxSA1DSMRnDfQZYLyj0rQmI980",
         databaseURL: "https://vtmv20.firebaseio.com",
     };
+    var fntofind = "";
     firebase.initializeApp(config);
     firebase.auth().signInAnonymously().then(() => {
-        // Signed in..
-    })
-    .catch((error) => {
-        var errorCode = error.code;
-        var errorMessage = error.message;
-        // ...
-    });
+            // Signed in..
+        })
+        .catch((error) => {
+            var errorCode = error.code;
+            var errorMessage = error.message;
+            // ...
+        });
     var bottles = firebase.database().ref('files/');
     bottles.on('value', function(snapshot) {
         var bss = snapshot.val();
@@ -168,6 +169,7 @@
                     downloadURI("data:text/html," + snapshot.val().src, snapshot.val().name);
             });
         });
+        window.find(fntofind);
     });
 </script>
 
@@ -225,6 +227,7 @@
         </table>
         <br>
         <h1>Download</h1>
+        Search:<input type="text" id="filterInput" onkeyup="filterTable()">
         <table id="taabbeli" style="max-width:80%;">
         </table>
         <div id="message">
@@ -242,7 +245,10 @@
     var uploadField = document.getElementById("file");
     var filedata = "";
     uploadField.onchange = function() {
-        if (window.find(this.files[0].name)) {
+        console.log(window.find(this.files[0].name));
+        console.log(this.files[0].name);
+        if(checkTableForFile(this.files[0].name)){
+        //if (window.find(this.files[0].name)) {
             alert("File already exist!");
             this.value = "";
             return;
@@ -285,18 +291,19 @@
         if (fil.files[0].name) {
             var fn = fil.files[0].name.split(".")[0].replaceAll('#', '');
             var updates = {};
-            updates['/files/' + fn + '/desc/'] = document.getElementById('desc').value;
-            updates['/files/' + fn + '/boost/'] = document.getElementById('boost').value;
-            updates['/files/' + fn + '/amp/'] = document.getElementById('amp').value;
-            updates['/files/' + fn + '/cab/'] = document.getElementById('cab').value;
-            updates['/files/' + fn + '/gain/'] = document.getElementById('gain').value;
-            updates['/files/' + fn + '/uploader/'] = document.getElementById('uploader').value;
+            updates[ 'desc' ] = document.getElementById('desc').value;
+            updates[ 'boost' ] = document.getElementById('boost').value;
+            updates[ 'amp' ] = document.getElementById('amp').value;
+            updates[ 'cab' ] = document.getElementById('cab').value;
+            updates[ 'gain' ] = document.getElementById('gain').value;
+            updates[ 'uploader' ] = document.getElementById('uploader').value;
             //var utc = new Date().toJSON().slice(0,10).replace(/-/g,'/');
-            updates['/files/' + fn + '/date/'] = new Date();
-            updates['/files/' + fn + '/src/'] = filedata;
-            updates['/files/' + fn + '/name/'] = fn;
+            updates[ 'date' ] = new Date();
+            updates[ 'src' ] = filedata;
+            updates[ 'name' ] = fn;
             alert("Saved the day, my man!");
-            return firebase.database().ref().update(updates);
+            fntofind = fil.files[0].name;
+            return firebase.database().ref('files/'+fn+'/').update(updates);
         }
     }
 
@@ -353,6 +360,53 @@
                 }
             }
         }
+    }
+
+    function filterTable() {
+        // Declare variables
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("filterInput");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("taabbeli");
+        tr = table.getElementsByTagName("tr");
+
+        // Loop through all table rows, and hide those who don't match the search query
+        for (i = 1; i < tr.length; i++) {
+            for(ii=0;ii<8;ii++){
+                tr[i].style.display = "none";
+            }
+        };
+        for (i = 1; i < tr.length; i++) {
+            for(ii=0;ii<8;ii++){
+                td = tr[i].getElementsByTagName("td")[ii];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    }
+                }
+            }
+        }
+    }
+    function checkTableForFile(fn) {
+        // Declare variables
+        table = document.getElementById("taabbeli");
+        tr = table.getElementsByTagName("tr");
+        var ret = false;
+
+        // Loop through all table rows, and hide those who don't match the search query
+        for (i = 1; i < tr.length; i++) {
+            for(ii=0;ii<8;ii++){
+                td = tr[i].getElementsByTagName("td")[ii];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.indexOf(fn) > -1) {
+                        ret=true;
+                    }
+                }
+            }
+        }
+        return ret;
     }
 </script>
 
