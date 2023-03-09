@@ -156,17 +156,26 @@
                 // document.getElementById(key+'ref').value = snapshot.val().src;
                 function downloadURI(uri, name) {
                     var link = document.createElement("a");
-                    link.download = name + ".nam";
                     link.innerHTML = name + ".nam";
                     link.href = uri;
+                    link.onclick = function(){
+                        var srcget = firebase.database().ref('files/'+key+"/src/");
+                        srcget.on('value', function(snapshot) {
+                            var bss = snapshot.val();
+                            link.href = "data:text/html,"+bss;
+                            link.download = name + ".nam";
+                        });
+                    }
                     var rpl = document.getElementById(key + 'href');
                     rpl.appendChild(link);
                     //link.click();
                     //document.body.removeChild(link);
                     //delete link;
                 }
-                if (snapshot.val().src)
-                    downloadURI("data:text/html," + snapshot.val().src, snapshot.val().name);
+                if (snapshot.val().src){
+                    downloadURI(key/*"data:text/html," + snapshot.val().src*/, snapshot.val().name);
+                    snapshot.val().src="";
+                }
             });
         });
         window.find(fntofind);
@@ -245,8 +254,6 @@
     var uploadField = document.getElementById("file");
     var filedata = "";
     uploadField.onchange = function() {
-        console.log(window.find(this.files[0].name));
-        console.log(this.files[0].name);
         if(checkTableForFile(this.files[0].name)){
         //if (window.find(this.files[0].name)) {
             alert("File already exist!");
@@ -269,7 +276,6 @@
             var reader = new FileReader()
             reader.onload = function() {
                 filedata = reader.result.replaceAll(" ", "");
-                //console.log(reader.result);
             };
             reader.readAsText(event.target.files[0])
         }
