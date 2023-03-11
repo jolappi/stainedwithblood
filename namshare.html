@@ -168,7 +168,7 @@
                         const dbRef = firebase.database().ref('filedata/'+lname+'/nam').once('value').then((snapshot) => {
                             const a = document.createElement('a');
                             var str = ""+snapshot.val();
-                            a.href = "data:text/html,"+snapshot.val().toString();
+                            a.href = "data:text/ascii,"+snapshot.val().toString();
                             a.download = link.innerHTML//url.split('/').pop()
                             document.body.appendChild(a)
                             a.click()
