@@ -152,29 +152,26 @@
                 document.getElementById(key + 'cab').innerHTML = document.getElementById(key + 'cab').innerHTML + ' ' + (snapshot.val().cab ? snapshot.val().cab : '');
                 document.getElementById(key + 'gain').innerHTML = document.getElementById(key + 'gain').innerHTML + ' ' + (snapshot.val().gain ? snapshot.val().gain : '');
                 document.getElementById(key + 'uploader').innerHTML = document.getElementById(key + 'uploader').innerHTML + ' ' + (snapshot.val().uploader ? snapshot.val().uploader : '');
-                // document.getElementById(key+'desc').value = snapshot.val().desc;
-                // document.getElementById(key+'ref').value = snapshot.val().src;
                 function downloadURI(uri, name) {
-                    var link = document.createElement("a");
+                    var link = document.createElement("button");
                     link.innerHTML = name + ".nam";
-                    link.href = uri;
                     link.onclick = function(){
-                        var srcget = firebase.database().ref('files/'+key+"/src/");
-                        srcget.on('value', function(snapshot) {
-                            var bss = snapshot.val();
-                            link.href = "data:text/html,"+bss;
-                            link.download = name + ".nam";
+                        var lname = link.innerHTML.split('.')[0];
+                        const dbRef = firebase.database().ref('filedata/'+lname+'/nam').once('value').then((snapshot) => {
+                            const a = document.createElement('a');
+                            var str = ""+snapshot.val();
+                            a.href = "data:text/html,"+snapshot.val().toString();
+                            a.download = link.innerHTML//url.split('/').pop()
+                            document.body.appendChild(a)
+                            a.click()
+                            document.body.removeChild(a)
                         });
                     }
                     var rpl = document.getElementById(key + 'href');
                     rpl.appendChild(link);
-                    //link.click();
-                    //document.body.removeChild(link);
-                    //delete link;
                 }
-                if (snapshot.val().src){
-                    downloadURI(key/*"data:text/html," + snapshot.val().src*/, snapshot.val().name);
-                    snapshot.val().src="";
+                if (snapshot.val().name){
+                    downloadURI(key, snapshot.val().name);
                 }
             });
         });
@@ -199,12 +196,11 @@
             </tr>
             <tr>
                 <td>Boost:</td>
-                <td><input type="text" maxlength="50" id="boost"></td>
-                <td></td>
+                <td colspan="2"><input type="text" id="boost"></td>
             </tr>
             <tr>
                 <td>Amp:</td>
-                <td><input type="text" maxlength="50" id="amp"></td>
+                <td><input type="text" id="amp"></td>
                 <td>Gain:<select id="gain">
                         <option value="Clean">Clean</option>
                         <option value="Edge of breakup">Edge of breakup</option>
@@ -214,18 +210,15 @@
             </tr>
             <tr>
                 <td>Cab:</td>
-                <td><input type="text" maxlength="50" id="cab"></td>
-                <td></td>
+                <td colspan="2"><input type="text" id="cab"></td>
             </tr>
             <tr>
                 <td>Uploader:</td>
-                <td><input type="text" maxlength="50" id="uploader"></td>
-                <td></td>
+                <td colspan="2"><input type="text" id="uploader"></td>
             </tr>
             <tr>
                 <td>Description:</td>
-                <td colspan="2"><textarea id="desc" maxlength="400" rows=4></textarea>
-                    <!--input type="text" id="desc"-->
+                <td colspan="2"><textarea id="desc" rows=3></textarea>
                 </td>
             </tr>
             <tr>
@@ -251,6 +244,27 @@
     </center>
 </body>
 <script>
+    function showtherest(){
+        table = document.getElementById("tabel");
+        tr = table.getElementsByTagName("tr");
+        // Loop through all table rows, and hide those who don't match the search query
+        for (i = 2; i < tr.length; i++) {
+            for(ii=0;ii<8;ii++){
+                tr[i].style.display = "table-row";
+            }
+        };
+    }
+    function hidetherest(){
+        table = document.getElementById("tabel");
+        tr = table.getElementsByTagName("tr");
+        // Loop through all table rows, and hide those who don't match the search query
+        for (i = 2; i < tr.length; i++) {
+            for(ii=0;ii<8;ii++){
+                tr[i].style.display = "none";
+            }
+        };
+    }
+    hidetherest();
     var uploadField = document.getElementById("file");
     var filedata = "";
     uploadField.onchange = function() {
@@ -273,6 +287,7 @@
             alert("File is too small!");
             this.value = "";
         } else {
+            showtherest();
             var reader = new FileReader()
             reader.onload = function() {
                 filedata = reader.result.replaceAll(" ", "");
@@ -295,6 +310,7 @@
             return;
         }
         if (fil.files[0].name) {
+            hidetherest();
             var fn = fil.files[0].name.split(".")[0].replaceAll('#', '');
             var updates = {};
             updates[ 'desc' ] = document.getElementById('desc').value;
@@ -305,10 +321,13 @@
             updates[ 'uploader' ] = document.getElementById('uploader').value;
             //var utc = new Date().toJSON().slice(0,10).replace(/-/g,'/');
             updates[ 'date' ] = new Date();
-            updates[ 'src' ] = filedata;
+            //updates[ 'src' ] = filedata;
             updates[ 'name' ] = fn;
-            alert("Saved the day, my man!");
+            //alert("Saved the day, my man!");
             fntofind = fil.files[0].name;
+            var fd = {};
+            fd['nam'] = filedata;
+            firebase.database().ref('filedata/'+fn+'/').update(fd);
             return firebase.database().ref('files/'+fn+'/').update(updates);
         }
     }
