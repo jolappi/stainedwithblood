@@ -142,9 +142,13 @@
             "<table><th onclick='sortTable(0)'>Gain &#11021;</th><th onclick='sortTable(1)'>Boost &#11021;</th><th onclick='sortTable(2)'>Amp &#11021;</th><th onclick='sortTable(3)'>Cab &#11021;</th><th onclick='sortTable(4)'>Description &#11021;</th><th onclick='sortTable(5)'>File &#11021;</th><th onclick='sortTable(6)'>Uploader &#11021;</th><th onclick='sortTable(7)'>Date &#11021;</th>" +
             ins + "</table>";
         document.getElementById("message").innerHTML = "";
+        var ncount = document.getElementById("namcount");
+        var nc = 0;
         refs.forEach(function(key) {
             var ref = firebase.database().ref('files/' + key + '/');
             ref.on('value', function(snapshot) {
+                nc = nc + 1;
+                ncount.innerHTML = ""+nc;
                 document.getElementById(key + 'date').innerHTML = document.getElementById(key + 'date').innerHTML + ' ' + (snapshot.val().date ? snapshot.val().date : '');
                 document.getElementById(key + 'desc').innerHTML = document.getElementById(key + 'desc').innerHTML + ' ' + (snapshot.val().desc ? snapshot.val().desc : '');
                 document.getElementById(key + 'amp').innerHTML = document.getElementById(key + 'amp').innerHTML + ' ' + (snapshot.val().amp ? snapshot.val().amp : '');
@@ -229,13 +233,13 @@
         </table>
         <br>
         <h1>Download</h1>
-        Search:<input type="text" id="filterInput" onkeyup="filterTable()">
+        Search:<input type="text" id="filterInput" onkeyup="filterTable()"> Total:<label id="namcount"></label>
         <table id="taabbeli" style="max-width:80%;">
         </table>
         <div id="message">
             <!--h1>Welcome</h1-->
             <center>
-                <p>Loading!</p>
+                <p>Loading! If loading hangs try refreshing in couple minutes.</p>
             </center>
             <ul>
                 <li><a target="_blank" href="https://firebase.google.com/docs/hosting/">Please wait!!!</a></li>
