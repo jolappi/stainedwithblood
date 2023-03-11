@@ -131,7 +131,9 @@
     <td id='replacedesc'></td>\
     <td id='replacehref'></td>\
     <td id='replaceuploader'></td>\
-    <td id='replacedate'></td></tr>";
+    <td id='replacedate'></td>\
+    <td id='replacedl'></td>\
+    </tr>";
         var ins = "";
         var refs = [];
         Object.keys(bss).forEach(function(key) {
@@ -139,7 +141,7 @@
             refs.push(key);
         });
         document.getElementById("taabbeli").innerHTML =
-            "<table><th onclick='sortTable(0)'>Gain &#11021;</th><th onclick='sortTable(1)'>Boost &#11021;</th><th onclick='sortTable(2)'>Amp &#11021;</th><th onclick='sortTable(3)'>Cab &#11021;</th><th onclick='sortTable(4)'>Description &#11021;</th><th onclick='sortTable(5)'>File &#11021;</th><th onclick='sortTable(6)'>Uploader &#11021;</th><th onclick='sortTable(7)'>Date &#11021;</th>" +
+            "<table><th onclick='sortTable(0)'>Gain &#11021;</th><th onclick='sortTable(1)'>Boost &#11021;</th><th onclick='sortTable(2)'>Amp &#11021;</th><th onclick='sortTable(3)'>Cab &#11021;</th><th onclick='sortTable(4)'>Description &#11021;</th><th onclick='sortTable(5)'>File &#11021;</th><th onclick='sortTable(6)'>Uploader &#11021;</th><th onclick='sortTable(7)'>Date &#11021;</th><th onclick='sortTable(8)'>DL &#11021;</th>" +
             ins + "</table>";
         document.getElementById("message").innerHTML = "";
         var ncount = document.getElementById("namcount");
@@ -156,6 +158,7 @@
                 document.getElementById(key + 'cab').innerHTML = document.getElementById(key + 'cab').innerHTML + ' ' + (snapshot.val().cab ? snapshot.val().cab : '');
                 document.getElementById(key + 'gain').innerHTML = document.getElementById(key + 'gain').innerHTML + ' ' + (snapshot.val().gain ? snapshot.val().gain : '');
                 document.getElementById(key + 'uploader').innerHTML = document.getElementById(key + 'uploader').innerHTML + ' ' + (snapshot.val().uploader ? snapshot.val().uploader : '');
+                document.getElementById(key + 'dl').innerHTML = document.getElementById(key + 'dl').innerHTML + ' ' + (snapshot.val().dl ? snapshot.val().dl : '');
                 function downloadURI(uri, name) {
                     var link = document.createElement("button");
                     link.innerHTML = name + ".nam";
@@ -169,6 +172,11 @@
                             document.body.appendChild(a)
                             a.click()
                             document.body.removeChild(a)
+                            var fd = {};
+                            var sc = document.getElementById(lname+'dl').innerHTML;
+                            if(sc==' '||sc==' NaN')sc='0';
+                            fd['dl'] = (parseInt(sc)+1)+"";
+                            firebase.database().ref('files/'+lname+'/').update(fd);
                         });
                     }
                     var rpl = document.getElementById(key + 'href');
