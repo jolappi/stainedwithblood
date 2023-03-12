@@ -163,6 +163,9 @@
             var ref = firebase.database().ref('files/' + key + '/');
             ref.on('value', function(snapshot) {
                 nc = nc + 1;
+                if(nc >= 3000){
+                    document.getElementById('tabel').style.display = "none";
+                }
                 ncount.innerHTML = ""+nc;
                 document.getElementById(key + 'date').innerHTML = document.getElementById(key + 'date').innerHTML + ' ' + (snapshot.val().date ? snapshot.val().date : '');
                 document.getElementById(key + 'desc').innerHTML = document.getElementById(key + 'desc').innerHTML + ' ' + (snapshot.val().desc ? snapshot.val().desc : '');
@@ -267,10 +270,8 @@
             <!--h1>Welcome</h1-->
             <center>
                 <p>Loading! If loading hangs try refreshing in couple minutes.</p>
+                <p>Please wait, this might take time if there is thousands of nams!<p/>
             </center>
-            <ul>
-                <li><a target="_blank" href="https://firebase.google.com/docs/hosting/">Please wait!!!</a></li>
-            </ul>
         </div>
     </center>
 </body>
