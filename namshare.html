@@ -204,7 +204,7 @@
             });
         });
         window.find(fntofind);
-    });
+    },error=>{alert(error+"\nSomething went wrong");});
 </script>
 
 <body>
@@ -358,8 +358,14 @@
             fntofind = fil.files[0].name;
             var fd = {};
             fd['nam'] = filedata;
-            firebase.database().ref('filedata/'+fn+'/').update(fd);
-            return firebase.database().ref('files/'+fn+'/').update(updates);
+            firebase.database().ref('filedata/'+fn+'/').update(fd).then(function(){
+                firebase.database().ref('files/'+fn+'/').update(updates).then().catch(function(error){
+                    alert(error+"\nSomething went wrong");
+                });
+            }).catch(function(error){
+                alert(error+"\nSomething went wrong");
+            });
+            return; //firebase.database().ref('files/'+fn+'/').update(updates);
         }
     }
 
