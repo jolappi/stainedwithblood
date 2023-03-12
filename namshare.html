@@ -13,23 +13,28 @@
     <style media="screen">
         body {
             font-family: Roboto, Arial, sans-serif;
-            background: #E0E0E0;
+            background: #1A1C1F;
             color: rgba(0, 0, 0, 0.87);
             marging: 0px;
             width: 100%;
+            color:#A5B2BE
         }
 
         a {
             color: rgb(3, 155, 229);
         }
-
+        button {
+            background-color: #033;
+            border-block-color:#A5B2BE;
+            color:#A5B2BE;
+        }
         table,
         th,
         td {
             border: 1px solid black;
             padding-right: 2px;
             padding-left: 2px;
-            background: #FFFFFF;
+            background-color: #023;
         }
 
         th:first-of-type {
@@ -49,7 +54,7 @@
         }
 
         table {
-            border: 1px solid #ddd;
+            border: 1px solid #A5B2BE;
             border-collapse: separate;
             border-left: 0;
             border-radius: 8px;
@@ -74,11 +79,11 @@
             padding: 5px 4px 6px 4px;
             text-align: left;
             vertical-align: top;
-            border-left: 1px solid #ddd;
+            border-left: 1px solid #A5B2BE;
         }
 
         td {
-            border-top: 1px solid #ddd;
+            border-top: 1px solid #A5B2BE;
         }
 
         thead:first-child tr:first-child th:first-child,
@@ -96,7 +101,7 @@
         }
 
         .textwrapper {
-            border: 1px solid #999999;
+            border: 1px solid #A5B2BE;
             margin: 5px 0;
             padding: 3px;
         }
@@ -251,7 +256,7 @@
         </table>
         <br>
         <h1>Download</h1>
-        Search:<input type="text" id="filterInput" onkeyup="filterTable()"> Total:<label id="namcount"></label>
+        Search:<input type="text" id="filterInput" onkeyup="filterTable()"> Total:<label id="namcount"></label>/3000
         <table id="taabbeli" style="max-width:80%;">
         </table>
         <div id="message">
