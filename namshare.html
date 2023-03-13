@@ -132,6 +132,11 @@
             // ...
         });
     var bottles = firebase.database().ref('files/');
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    window.searchi = urlParams.get('search');
+    window.download = urlParams.get('download');
+    window.maindone = false;
     bottles.on('value', function(snapshot) {
         var bss = snapshot.val();
         //var arr = "<center><b><label for='replace'>replace</label><br><textarea id='replace' type='text' onfocusout='write007(replacq)' onkeydown='if(event.keyCode == 13) write007(replacq);'></textarea><br></center>";
@@ -178,6 +183,7 @@
                 function downloadURI(uri, name) {
                     var link = document.createElement("button");
                     link.innerHTML = name + ".nam";
+                    link.id = name + ".nam";
                     link.onclick = function(){
                         var lname = link.innerHTML.split('.')[0];
                         const dbRef = firebase.database().ref('filedata/'+lname+'/nam').once('value').then((snapshot) => {
@@ -207,7 +213,20 @@
             });
         });
         window.find(fntofind);
+
+        function main(){
+            window.maindone = true;
+            if(window.searchi!=''){
+                document.getElementById('filterInput').value = window.searchi;
+                filterTable();
+            }
+            if(window.download&&window.download!="")
+                document.getElementById(window.download).click();
+        }
+        if(window.maindone == false)
+            main();
     },error=>{alert(error+"\nSomething went wrong");});
+
 </script>
 
 <body>
