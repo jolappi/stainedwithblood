@@ -166,7 +166,6 @@
                     var dataref = firebase.database().ref('filedata/' + window.download + '/nam');
                     dataref.on('value', function(snapshotti) {
                         if(snapshotti.val()){
-                            console.log(addedOnce);
                             if(addedOnce==false){
                                 addedOnce = true;
                                 var mq = {};
@@ -216,7 +215,7 @@
                 <b>Uploader:&nbsp</b><span id="uploader"></span><br> <br>
                 <b>Downloads:&nbsp</b><span id="dl"></span><br><br>
                 <b>Date:&nbsp</b><span id="date"></span><br> <br><br>
-                <b>Server quota for up and downloads left:</b><span id="quotaleft"></span>
+                <b>We can still up or download&nbsp</b><span id="quotaleft"></span> times before server quota is exceeded!
         </div>
         </center>
     </center>
