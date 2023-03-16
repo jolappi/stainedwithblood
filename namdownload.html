@@ -117,11 +117,13 @@
     // Initialize Firebase
     // TODO: Replace with your project's customized code snippet
     var notifiedOnce = false;
+    var addedOnce = false;
     var config = {
         apiKey: "AIzaSyBuxxYDwyxSA1DSMRnDfQZYLyj0rQmI980",
         databaseURL: "https://vtmv20.firebaseio.com",
     };
     var dlcount = 0;
+    var QuotaLeft = 0;
     firebase.initializeApp(config);
     firebase.auth().signInAnonymously().then(() => {
             // Signed in..
@@ -139,40 +141,59 @@
     if(!window.download){
         alert('nothing to download');
     } else {
-        var bottles = firebase.database().ref('files/'+window.download);
-        bottles.on('value', function(snapshot) {
-            var bss = snapshot.val();
-            dlcount = snapshot.val().dl;
-            document.getElementById("message").innerHTML = "<a id='dllink' href=''>"+window.download+".nam</a>";
-            document.getElementById("gain").innerHTML = snapshot.val().gain;
-            document.getElementById("boost").innerHTML = snapshot.val().boost;
-            document.getElementById("amp").innerHTML = snapshot.val().amp;
-            document.getElementById("cab").innerHTML = snapshot.val().cab;
-            document.getElementById("desc").innerHTML = snapshot.val().desc;
-            document.getElementById("uploader").innerHTML = snapshot.val().uploader;
-            document.getElementById("date").innerHTML = snapshot.val().date;
-            document.getElementById("dl").innerHTML = snapshot.val().dl;
-            var dataref = firebase.database().ref('filedata/' + window.download + '/nam');
-            dataref.on('value', function(snapshotti) {
-                if(snapshotti.val()){
-                    function downloadURI(uri,name) {
-                        var link = document.getElementById("dllink");
-                        link.href = "data:text/plain,"+uri.toString();
-                        link.download = name;
-                        link.onclick = function(){
-                            if(dlcount==' '||dlcount==' NaN')dlcount='0';
-                            var fd = {};
-                            fd['dl'] = (parseInt(dlcount)+1)+"";
-                            firebase.database().ref('files/'+name.split(".")[0]+'/').update(fd);
+        var quota = firebase.database().ref('monthlyquota/');
+        quota.on('value', function(snapshott) {
+            QuotaLeft = parseInt(snapshott.val().max) - parseInt(snapshott.val().current);
+            if(QuotaLeft<1){
+                //no more
+                alert('quota exceeded, come back next month.');
+            } else {
+                current = parseInt(snapshott.val().current);
+                var bottles = firebase.database().ref('files/'+window.download);
+                bottles.on('value', function(snapshot) {
+                    var bss = snapshot.val();
+                    dlcount = snapshot.val().dl;
+                    document.getElementById("message").innerHTML = "<a id='dllink' href=''>"+window.download+".nam</a>";
+                    document.getElementById("gain").innerHTML = snapshot.val().gain;
+                    document.getElementById("boost").innerHTML = snapshot.val().boost;
+                    document.getElementById("amp").innerHTML = snapshot.val().amp;
+                    document.getElementById("cab").innerHTML = snapshot.val().cab;
+                    document.getElementById("desc").innerHTML = snapshot.val().desc;
+                    document.getElementById("uploader").innerHTML = snapshot.val().uploader;
+                    document.getElementById("date").innerHTML = snapshot.val().date;
+                    document.getElementById("dl").innerHTML = snapshot.val().dl;
+                    document.getElementById("quotaleft").innerHTML = QuotaLeft;
+                    var dataref = firebase.database().ref('filedata/' + window.download + '/nam');
+                    dataref.on('value', function(snapshotti) {
+                        if(snapshotti.val()){
+                            console.log(addedOnce);
+                            if(addedOnce==false){
+                                addedOnce = true;
+                                var mq = {};
+                                mq['current'] = (current+1)+"";
+                                firebase.database().ref('monthlyquota/').update(mq);
+                            }
+                            function downloadURI(uri,name) {
+                                var link = document.getElementById("dllink");
+                                link.href = "data:text/plain,"+uri.toString();
+                                link.download = name;
+                                link.onclick = function(){
+                                    if(dlcount==' '||dlcount==' NaN')dlcount='0';
+                                    var fd = {};
+                                    fd['dl'] = (parseInt(dlcount)+1)+"";
+                                    firebase.database().ref('files/'+name.split(".")[0]+'/').update(fd);
+                                }
+                            }
+                            downloadURI(snapshotti.val(),window.download+".nam");
+                        } else {
+                            document.getElementById("message").innerHTML = "<p>No file with that name!</p>";
                         }
-                    }
-                    downloadURI(snapshotti.val(),window.download+".nam");
-                } else {
-                    document.getElementById("message").innerHTML = "<p>No file with that name!</p>";
-                }
-            });
-        },error=>{alert(error+"\nSomething went wrong");});
+                    });
+                },error=>{alert(error+"\nSomething went wrong");});
+            }
+        });
     }
+//});
 </script>
 
 <body>
@@ -194,7 +215,8 @@
                 <b>Description:&nbsp</b><span id="desc"></span><br><br>
                 <b>Uploader:&nbsp</b><span id="uploader"></span><br> <br>
                 <b>Downloads:&nbsp</b><span id="dl"></span><br><br>
-                <b>Date:&nbsp</b><span id="date"></span><br> <br>
+                <b>Date:&nbsp</b><span id="date"></span><br> <br><br>
+                <b>Server quota for up and downloads left:</b><span id="quotaleft"></span>
         </div>
         </center>
     </center>
