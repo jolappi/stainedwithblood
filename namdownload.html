@@ -144,6 +144,14 @@
             var bss = snapshot.val();
             dlcount = snapshot.val().dl;
             document.getElementById("message").innerHTML = "<a id='dllink' href=''>"+window.download+".nam</a>";
+            document.getElementById("gain").innerHTML = snapshot.val().gain;
+            document.getElementById("boost").innerHTML = snapshot.val().boost;
+            document.getElementById("amp").innerHTML = snapshot.val().amp;
+            document.getElementById("cab").innerHTML = snapshot.val().cab;
+            document.getElementById("desc").innerHTML = snapshot.val().desc;
+            document.getElementById("uploader").innerHTML = snapshot.val().uploader;
+            document.getElementById("date").innerHTML = snapshot.val().date;
+            document.getElementById("dl").innerHTML = snapshot.val().dl;
             var dataref = firebase.database().ref('filedata/' + window.download + '/nam');
             dataref.on('value', function(snapshotti) {
                 if(snapshotti.val()){
@@ -176,6 +184,19 @@
                 <p>This needs parameter ?download=fileinnamshare.nam</p>
             </center>
         </div>
+        <center>
+        <div id="fdata">
+                <br>
+                <b>Gain:&nbsp</b><span id="gain"></span><br><br>
+                <b>Boost:&nbsp</b><span id="boost"></span><br><br>
+                <b>Amp:&nbsp</b><span id="amp"></span><br><br>
+                <b>Cab:&nbsp</b><span id="cab"></span><br><br>
+                <b>Description:&nbsp</b><span id="desc"></span><br><br>
+                <b>Uploader:&nbsp</b><span id="uploader"></span><br> <br>
+                <b>Downloads:&nbsp</b><span id="dl"></span><br><br>
+                <b>Date:&nbsp</b><span id="date"></span><br> <br>
+        </div>
+        </center>
     </center>
 </body>
 
