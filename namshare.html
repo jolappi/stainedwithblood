@@ -147,10 +147,12 @@
     <td id='replaceamp'></td>\
     <td id='replacecab'></td>\
     <td id='replacedesc'></td>\
-    <td id='replacehref'></td>\
+    <td><div id='replacehref' style='width: 100px !important;overflow:hidden;'></div></td>\
     <td id='replaceuploader'></td>\
     <td id='replacedate'></td>\
     <td id='replacedl'></td>\
+    <td><div style='width: 100px !important;overflow:hidden;'><a href='http://stainedblood.com/namshare.html?download=replace.nam' target='_blank'>replace.nam</a>\
+    </div></td>\
     </tr>";
         var ins = "";
         var refs = [];
@@ -159,7 +161,11 @@
             refs.push(key);
         });
         document.getElementById("taabbeli").innerHTML =
-            "<table><th onclick='sortTable(0)'>Gain &#11021;</th><th onclick='sortTable(1)'>Boost &#11021;</th><th onclick='sortTable(2)'>Amp &#11021;</th><th onclick='sortTable(3)'>Cab &#11021;</th><th onclick='sortTable(4)'>Description &#11021;</th><th onclick='sortTable(5)'>File &#11021;</th><th onclick='sortTable(6)'>Uploader &#11021;</th><th onclick='sortTable(7)'>Date &#11021;</th><th onclick='sortTable(8)'>DL &#11021;</th>" +
+            "<table><th onclick='sortTable(0)'>Gain &#11021;</th><th onclick='sortTable(1)'>Boost &#11021;</th>"+
+            "<th onclick='sortTable(2)'>Amp &#11021;</th><th onclick='sortTable(3)'>Cab &#11021;</th>"+
+            "<th onclick='sortTable(4)'>Description &#11021;</th><th onclick='sortTable(5)'>File &#11021;</th>"+
+            "<th onclick='sortTable(6)'>Uploader &#11021;</th><th onclick='sortTable(7)'>Date &#11021;</th>"+
+            "<th onclick='sortTable(8)'>DL &#11021;</th>" + "<th>Link</th>" +
             ins + "</table>";
         document.getElementById("message").innerHTML = "";
         var ncount = document.getElementById("namcount");
@@ -199,9 +205,13 @@
                             if(sc==' '||sc==' NaN')sc='0';
                             fd['dl'] = (parseInt(sc)+1)+"";
                             firebase.database().ref('files/'+lname+'/').update(fd);
-                            if(!notifiedOnce)
-                                alert('Check Your downloads folder');
-                            notifiedOnce = true;
+                            if(window.download&&window.download!=""){
+                                location.href=location.origin+location.pathname;
+                            } else {
+                                if(!notifiedOnce)
+                                    alert('Check Your downloads folder');
+                                notifiedOnce = true;
+                            }
                         });
                     }
                     var rpl = document.getElementById(key + 'href');
