@@ -9,7 +9,7 @@
     <meta name="googlebot-news" content="nosnippet">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1208825469304769"
      crossorigin="anonymous"></script>
-    <title>Nam Share</title>
+    <title>Nam Download</title>
     <style media="screen">
         body {
             font-family: Roboto, Arial, sans-serif;
@@ -121,7 +121,7 @@
         apiKey: "AIzaSyBuxxYDwyxSA1DSMRnDfQZYLyj0rQmI980",
         databaseURL: "https://vtmv20.firebaseio.com",
     };
-    var fntofind = "";
+    var dlcount = 0;
     firebase.initializeApp(config);
     firebase.auth().signInAnonymously().then(() => {
             // Signed in..
@@ -142,6 +142,7 @@
         var bottles = firebase.database().ref('files/'+window.download);
         bottles.on('value', function(snapshot) {
             var bss = snapshot.val();
+            dlcount = snapshot.val().dl;
             document.getElementById("message").innerHTML = "<a id='dllink' href=''>"+window.download+".nam</a>";
             var dataref = firebase.database().ref('filedata/' + window.download + '/nam');
             dataref.on('value', function(snapshotti) {
@@ -150,6 +151,12 @@
                         var link = document.getElementById("dllink");
                         link.href = "data:text/plain,"+uri.toString();
                         link.download = name;
+                        link.onclick = function(){
+                            if(dlcount==' '||dlcount==' NaN')dlcount='0';
+                            var fd = {};
+                            fd['dl'] = (parseInt(dlcount)+1)+"";
+                            firebase.database().ref('files/'+name.split(".")[0]+'/').update(fd);
+                        }
                     }
                     downloadURI(snapshotti.val(),window.download+".nam");
                 } else {
