@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex">
+    <meta name="googlebot" content="noindex">
+    <meta name="googlebot-news" content="nosnippet">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1208825469304769"
+     crossorigin="anonymous"></script>
+    <title>Nam Share</title>
+    <style media="screen">
+        body {
+            font-family: Roboto, Arial, sans-serif;
+            background: #1A1C1F;
+            color: rgba(0, 0, 0, 0.87);
+            marging: 0px;
+            width: 100%;
+            color:#A5B2BE
+        }
+
+        a {
+            color: rgb(3, 155, 229);
+        }
+        button {
+            background-color: #033;
+            border-block-color:#A5B2BE;
+            color:#A5B2BE;
+        }
+        table,
+        td {
+            border: 1px solid black;
+            padding-right: 2px;
+            padding-left: 2px;
+            background-color: #023;
+        }
+        th {
+            border: 1px solid black;
+            padding-right: 2px;
+            padding-left: 2px;
+            background-color: #034;
+        }
+        th:first-of-type {
+            border-top-left-radius: 10px;
+        }
+
+        th:last-of-type {
+            border-top-right-radius: 10px;
+        }
+
+        tr:last-of-type td:first-of-type {
+            border-bottom-left-radius: 10px;
+        }
+
+        tr:last-of-type td:last-of-type {
+            border-bottom-right-radius: 10px;
+        }
+
+        table {
+            border: 1px solid #A5B2BE;
+            border-collapse: separate;
+            border-left: 0;
+            border-radius: 8px;
+            border-spacing: 0px;
+        }
+
+        thead {
+            display: table-header-group;
+            vertical-align: middle;
+            border-color: inherit;
+            border-collapse: separate;
+        }
+
+        tr {
+            display: table-row;
+            vertical-align: inherit;
+            border-color: inherit;
+        }
+
+        th,
+        td {
+            padding: 5px 4px 6px 4px;
+            text-align: left;
+            vertical-align: top;
+            border-left: 1px solid #A5B2BE;
+        }
+
+        td {
+            border-top: 1px solid #A5B2BE;
+        }
+
+        thead:first-child tr:first-child th:first-child,
+        tbody:first-child tr:first-child td:first-child {
+            border-radius: 4px 0 0 0;
+        }
+
+        thead:last-child tr:last-child th:first-child,
+        tbody:last-child tr:last-child td:first-child {
+            border-radius: 0 0 0 4px;
+        }
+
+        textarea {
+            width: 98%;
+        }
+
+        .textwrapper {
+            border: 1px solid #A5B2BE;
+            margin: 5px 0;
+            padding: 3px;
+        }
+    </style>
+
+</head>
+<script src="https://www.gstatic.com/firebasejs/3.6.2/firebase.js"></script>
+<script>
+    // Initialize Firebase
+    // TODO: Replace with your project's customized code snippet
+    var notifiedOnce = false;
+    var config = {
+        apiKey: "AIzaSyBuxxYDwyxSA1DSMRnDfQZYLyj0rQmI980",
+        databaseURL: "https://vtmv20.firebaseio.com",
+    };
+    var fntofind = "";
+    firebase.initializeApp(config);
+    firebase.auth().signInAnonymously().then(() => {
+            // Signed in..
+        })
+        .catch((error) => {
+            var errorCode = error.code;
+            var errorMessage = error.message;
+            // ...
+        });
+
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    window.download = urlParams.get('download');
+    window.download = window.download.split(".")[0];
+    if(!window.download){
+        alert('nothing to download');
+    } else {
+        var bottles = firebase.database().ref('files/'+window.download);
+        bottles.on('value', function(snapshot) {
+            var bss = snapshot.val();
+            document.getElementById("message").innerHTML = "<a id='dllink' href=''>"+window.download+".nam</a>";
+            var dataref = firebase.database().ref('filedata/' + window.download + '/nam');
+            dataref.on('value', function(snapshotti) {
+                if(snapshotti.val()){
+                    function downloadURI(uri,name) {
+                        var link = document.getElementById("dllink");
+                        link.href = "data:text/plain,"+uri.toString();
+                        link.download = name;
+                    }
+                    downloadURI(snapshotti.val(),window.download+".nam");
+                } else {
+                    document.getElementById("message").innerHTML = "<p>No file with that name!</p>";
+                }
+            });
+        },error=>{alert(error+"\nSomething went wrong");});
+    }
+</script>
+
+<body>
+    <center>
+        <div id="message">
+            <center>
+                <p>Loading!</p>
+                <p>Please wait!<p/>
+            </center>
+        </div>
+    </center>
+</body>
+
+</html>
