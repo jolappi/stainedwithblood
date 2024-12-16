@@ -107,7 +107,7 @@ bottles.on('value', function(snapshot) {
       document.getElementById(key+'date').innerHTML = document.getElementById(key+'date').innerHTML + ' '+snapshot.val().date;
       document.getElementById(key).value = snapshot.val().text;
     });
-   document.getElementById("viikko").innerHTML = 'Tämä viikko:'+(new Date()).getWeek() + '<br>';
+   //document.getElementById("viikko").innerHTML = 'Tämä viikko:'+(new Date()).getWeek() + '<br>';
   });
 Date.prototype.getWeek = function() {
       var onejan = new Date(this.getFullYear(),0,1);
