@@ -113,10 +113,16 @@ bottles.on('value', function(snapshot) {
       document.getElementById(key+'date').innerHTML = document.getElementById(key+'date').innerHTML + ' '+snapshot.val().date;
       document.getElementById(key).value = snapshot.val().text;
     });
-   document.getElementById("viikko").innerHTML = '<label id="viikko">Tämä viikko:'+(new Date()).getWeek() + '</label><br>';
+   document.getElementById("viikko").innerHTML = '<label id="viikko">Tämä viikko:'+getISOWeek(new Date())+ '</label><br>';
   });
-  document.getElementById("viikko").innerHTML = '<label id="viikko">Tämä viikko:'+(new Date()).getWeek() + '</label><br>';
+  document.getElementById("viikko").innerHTML = '<label id="viikko">Tämä viikko:'+getISOWeek(new Date()) + '</label><br>';
 });
+function getISOWeek(date) {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+}
 function write007(txt) {
   var updates = {};
   updates['/web/'+txt+'/text/'] = document.getElementById(txt).value;
